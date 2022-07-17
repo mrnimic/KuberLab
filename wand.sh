@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -f ./AnsibleInventory
+
 echo "Is this a new Sandbox?(y/n)"
 read yn
 
@@ -34,5 +36,7 @@ else
   aws cloudformation wait stack-update-complete --stack-name $STACKNAME
 fi
 
+echo "Resource creation is done!"
 
-echo "Done!"
+BastionPubIp=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'BastionPublicIP'].OutputValue | [0]" | tr -d '"')
+echo $BastionPubIp >> AnsibleInventory
