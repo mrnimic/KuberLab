@@ -22,7 +22,7 @@ fi
 echo 'Please enter your Stack name:'
 read STACKNAME
 
-ISVALID=$(aws cloudformation list-stacks --query "StackSummaries[?StackName == '${STACK>
+ISVALID=$(aws cloudformation list-stacks --query "StackSummaries[?StackName == '${STACKNAME}'] | [0]")
 
 if [ "$ISVALID" == "null" ]; then
   echo "This is a new Stack. Let's create it ... "
