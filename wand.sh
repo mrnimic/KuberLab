@@ -35,5 +35,4 @@ else
 fi
 
 
-#echo $STACKNAME
-#echo $ISVALID
+echo "Done!"
