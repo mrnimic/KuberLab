@@ -20,14 +20,18 @@ fi
 echo 'Please enter your Stack name:'
 read STACKNAME
 
-ISVALID=$(aws cloudformation list-stacks --query "StackSummaries[?(StackName == '${STACKNAME}' && StackStatus == 'CREATE_COMPLETE')] | [0]")
+STACKSTATUS=$(aws cloudformation list-stacks --query "StackSummaries[?StackName == '${STACKNAME}'].StackStatus | [0]")
 
-if [ "$ISVALID" == "null" ]; then
+if [ "$STACKSTATUS" == "null" ]; then
   echo "This is a new Stack. Let's create it ... "
   aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml
+  echo 'Waiting to create Stack ...'
+  aws cloudformation wait stack-update-complete --stack-name $STACKNAME
 else
   echo "This Stack has already been deployed. Let's update it ... "
   aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml
+  echo 'Waiting to update Stack ...'
+  aws cloudformation wait stack-update-complete --stack-name $STACKNAME
 fi
 
 

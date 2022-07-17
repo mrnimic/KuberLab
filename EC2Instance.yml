@@ -100,4 +100,6 @@ Outputs:
   BastionPublicIP:
     Value: !GetAtt BastionEc2Instance.PublicIp
     Description: "Bastion's Public ip"
+  MyPublicKey:
+    Value: !Ref SshKeyPair
 
