@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 echo "Is this a new Sandbox?(y/n)"
 read yn
