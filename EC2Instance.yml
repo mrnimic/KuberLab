@@ -61,7 +61,7 @@ Resources:
   EC2SecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
-        GroupDescription: 'Permitting SSH From Pritunl Sydney'
+        GroupDescription: 'Permitting SSH From Specific IP'
         VpcId: !Ref VPC
         SecurityGroupIngress:
             - IpProtocol: tcp
