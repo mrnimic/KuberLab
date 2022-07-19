@@ -19,48 +19,48 @@ Resources:
     Properties:
       KeyName: NimaMacbookPro
       PublicKeyMaterial: !Ref SshKeyPair
-  MyInternetGateway:
+  InternetGateway:
     Type: AWS::EC2::InternetGateway
-  FirstVPC:
+  VPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
       EnableDnsSupport: 'true'
       EnableDnsHostnames: 'true'
-  MyGatewayAttachment:
+  GatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      InternetGatewayId: !Ref MyInternetGateway
-      VpcId: !Ref FirstVPC
-  MyRouteTable:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+  RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref FirstVPC
-  MyRoute:
+      VpcId: !Ref VPC
+  Route:
     DependsOn:
-      - MyInternetGateway
+      - InternetGateway
     Type: AWS::EC2::Route
     Properties:
       DestinationCidrBlock: '0.0.0.0/0'
-      GatewayId: !Ref MyInternetGateway
-      RouteTableId: !Ref MyRouteTable
-  MyFirstSubnet:
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref RouteTable
+  Subnet:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref FirstVPC
+      VpcId: !Ref VPC
       CidrBlock: 10.0.0.0/24
       AvailabilityZone: "us-east-1a"
       MapPublicIpOnLaunch: "true"
-  MyRouteTableAssosiation:
+  RouteTableAssosiation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref MyFirstSubnet
-      RouteTableId: !Ref MyRouteTable
+      SubnetId: !Ref Subnet
+      RouteTableId: !Ref RouteTable
   EC2SecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
         GroupDescription: 'Permitting SSH From Pritunl Sydney'
-        VpcId: !Ref FirstVPC
+        VpcId: !Ref VPC
         SecurityGroupIngress:
             - IpProtocol: tcp
               FromPort: 22
@@ -81,7 +81,7 @@ Resources:
           DeviceIndex: "0"
           GroupSet:
             - !Ref EC2SecurityGroup
-          SubnetId: !Ref MyFirstSubnet
+          SubnetId: !Ref Subnet
       Tags:
         - Key: Name
           Value: Bastion
