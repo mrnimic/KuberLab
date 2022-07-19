@@ -5,7 +5,9 @@ Parameters:
   SshKeyPair:
     Type: String
     Default: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDAlVjPoTZEQU/2jhXi94qIF1XvGKie46HFIexZlrXdgdYnRuRMeQKiN1LJ0S/CBMhzX/9CH8PnSasQ35AFBdhnECrKHc5jA6p7Xw0ivBKCBw5faVIoN+sYHQxbxpB305FH7VLVp6LEx8JdlnO5aVXQf7sqK9ZppbcZyH7TtiKYw8SYDR3PWugJ5poFnEP8Aub0Zzgz6+9IVnSB+575geZAwiozEEka/4QXCLBp6n5OGDFE78QHOWE3w1kxfdPmntKOKOttdr1L2gPAliWKsJ2afamGqga8afbi2yMnop7ygtrER19wc1xlNTVPZ1I70Jf3ECYTCAbxlSdGrDuP274l1iirMXo22B/JjQTQRVvrE8m0j/DQQ83ZGW3pRvTA96MTpDx2wlHS0H28nMgVVcKSHNZMkV++Mdt53G3E40FwvoQskKqv5MNOiIZFH2RZ9XsDRLi8oVR5KIspOTPgM4aJgeWrmNhOjQV+yJf1/W8g4xfYkuymYVFB7ZqtJjIhblE= nim@Nima.local
-
+  SshSourceIp:
+    Type: String
+    Default: 158.176.95.134
 Mappings:
     RegionToAmazonAMI:
         us-east-1:
@@ -65,7 +67,7 @@ Resources:
             - IpProtocol: tcp
               FromPort: 22
               ToPort: 22
-              CidrIp: 158.176.95.134/32
+              CidrIp: !Join ['/', [!Ref SshSourceIp, '32']]
   BastionEc2Instance: 
     Type: AWS::EC2::Instance
     Properties: 
