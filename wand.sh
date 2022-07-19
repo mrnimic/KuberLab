@@ -32,6 +32,9 @@ elif [ "$STACKSTATUS" == "UPDATE_ROLLBACK_COMPLETE" ] || [ "$STACKSTATUS" == "CR
   echo "This Stack has already been deployed. Let's update it ... "
   echo 'Waiting to update Stack ...'
   aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
+else
+  echo "Stack status is $STACKSTATUS"
+  exit 1
 fi
 
 echo "Resource creation is done!"
