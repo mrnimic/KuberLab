@@ -24,11 +24,11 @@ read STACKNAME
 
 STACKSTATUS=$(aws cloudformation list-stacks --query "StackSummaries[?StackName == '${STACKNAME}'].StackStatus | [0]")
 
-if [ "$STACKSTATUS" == "null" ]; then
+if [ "$STACKSTATUS" == "null" ] || [ "$STACKSTATUS" == "CREATE_FAILED"]; then
   echo "This is a new Stack. Let's create it ... "
   echo 'Waiting to create Stack ...'
   aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
-elif [ "$STACKSTATUS" == "UPDATE_ROLLBACK_COMPLETE" ] || [ "$STACKSTATUS" == "CREATE_COMPLETE" ]; then
+elif [ "$STACKSTATUS" == "UPDATE_ROLLBACK_COMPLETE" ] || [ "$STACKSTATUS" == "CREATE_COMPLETE" ] || [ "$STACKSTATUS" == "UPDATE_COMPLETE" ] || [ "$STACKSTATUS" == "UPDATE_FAILED" ]; then
   echo "This Stack has already been deployed. Let's update it ... "
   echo 'Waiting to update Stack ...'
   aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
