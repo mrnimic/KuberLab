@@ -68,7 +68,7 @@ Resources:
               FromPort: 22
               ToPort: 22
               CidrIp: !Join ['/', [!Ref SshSourceIp, '32']]
-  BastionEc2Instance: 
+  JenkinsK8sControlPlane: 
     Type: AWS::EC2::Instance
     Properties: 
       ImageId:
@@ -76,7 +76,7 @@ Resources:
             - RegionToAmazonAMI
             - Ref: 'AWS::Region'
             - UB20
-      InstanceType: t2.medium
+      InstanceType: t3.medium
       KeyName: !Ref MySshKey
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"
@@ -86,7 +86,7 @@ Resources:
           SubnetId: !Ref Subnet
       Tags:
         - Key: Name
-          Value: Bastion
+          Value: Jenkins-k8sControl
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
@@ -94,12 +94,64 @@ Resources:
           sudo apt update && sudo apt install -y curl unzip
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
-          sudo ./aws/install --bin-dir /usr/local/bin
-          echo "complete -C '/usr/local/bin/aws_completer' aws" >> /home/ubuntu/.bashrc
-          echo ${SshKeyPair} >> /home/ubuntu/pubIp.txt
+          sudo ./aws/install --bin-dir /bin
+          echo "complete -C '/bin/aws_completer' aws" >> /home/ubuntu/.bashrc
+
+  k8sWorker1:
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId:
+        Fn::FindInMap:
+            - RegionToAmazonAMI
+            - Ref: 'AWS::Region'
+            - UB20
+      InstanceType: t3.medium
+      KeyName: !Ref MySshKey
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref EC2SecurityGroup
+          SubnetId: !Ref Subnet
+      Tags:
+        - Key: Name
+          Value: k8sWorker1
+      #UserData:
+        #Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          #cd /home/ubuntu/
+  k8sWorker2:
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId:
+        Fn::FindInMap:
+            - RegionToAmazonAMI
+            - Ref: 'AWS::Region'
+            - UB20
+      InstanceType: t3.medium
+      KeyName: !Ref MySshKey
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref EC2SecurityGroup
+          SubnetId: !Ref Subnet
+      Tags:
+        - Key: Name
+          Value: k8sWorker2
+      #UserData:
+        #Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          #cd /home/ubuntu/
 
 Outputs:
-  BastionPublicIP:
-    Value: !GetAtt BastionEc2Instance.PublicIp
-    Description: "Bastion's Public ip"
+  JenkinsPublicIP:
+    Value: !GetAtt JenkinsK8sControlPlane.PublicIp
+    Description: "Jenkins's Public ip"
+  Worker1PublicIP:
+    Value: !GetAtt k8sWorker1.PublicIp
+    Description: "Worker1's Public ip"
+  Worker2PublicIP:
+    Value: !GetAtt k8sWorker2.PublicIp
+    Description: "Worker2's Public ip"
 
