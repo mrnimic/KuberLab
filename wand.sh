@@ -1,6 +1,7 @@
 #!/bin/bash
 
 rm -f ./AnsibleInventory
+rm -f ./awskey.*
 
 echo "Is this a new Sandbox?(y/n)"
 read yn
@@ -44,12 +45,8 @@ fi
 
 echo "Resource creation is done!"
 
-echo "[Bastion]" > ./AnsibleInventory
+echo "[k8sControlPlane-Jenkins]" >> ./AnsibleInventory
 aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'BastionPublicIP'].OutputValue" --output text >> ./AnsibleInventory
-echo "[Jenkins]" >> ./AnsibleInventory
-aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'BastionPublicIP'].OutputValue" --output text >> ./AnsibleInventory
-echo "[k8s-ControlPlane]" >> ./AnsibleInventory
-aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'BastionPublicIP'].OutputValue" --output text >> ./AnsibleInventory
-echo "[k8s-workers]" >> ./AnsibleInventory
+echo "[k8sWorkers]" >> ./AnsibleInventory
 aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'BastionPublicIP'].OutputValue" --output text >> ./AnsibleInventory
 aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'BastionPublicIP'].OutputValue" --output text >> ./AnsibleInventory
