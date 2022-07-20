@@ -1,5 +1,6 @@
 #!/bin/sh
 
+chmod +x ./ansible_install.sh
 rm -f ./AnsibleInventory
 rm -f ./awskey*
 
