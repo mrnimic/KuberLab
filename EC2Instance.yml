@@ -71,9 +71,12 @@ Resources:
               FromPort: 22
               ToPort: 22
               CidrIp: !Ref SshSourceIpV4
-              CidrIpv6: !Ref SshSourceIpV6
             - IpProtocol: -1
               CidrIp: 10.0.0.0/24
+            - IpProtocol: tcp
+              FromPort: 22
+              ToPort: 22
+              CidrIpv6: !Ref SshSourceIpV6
               
   JenkinsK8sControlPlane: 
     Type: AWS::EC2::Instance
