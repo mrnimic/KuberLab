@@ -42,7 +42,7 @@ if [[ "$STACKSTATUS" == "null" ]] || [[ "$STACKSTATUS" == '"CREATE_FAILED"' ]] |
   echo '>Waiting to create Stack ...'
   if [ "$IPLEN" -gt 17 ];then
     echo ">Your IP address is IPV6"
-    aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV6,ParameterValue="$MYIP/128" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
+    aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV6,ParameterValue="$MYIP/64" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
   else
     echo ">Your IP address is IPV4"
     aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
@@ -51,7 +51,7 @@ elif [[ "$STACKSTATUS" == '"UPDATE_ROLLBACK_COMPLETE"' ]] || [[ "$STACKSTATUS" =
   echo ">This Stack has already been deployed. Let's update it ... "
   echo '>Waiting to update Stack ...'
   if [ "$IPLEN" -gt 17 ];then
-    aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV6,ParameterValue="$MYIP/128" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
+    aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV6,ParameterValue="$MYIP/64" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
   else
     aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
   fi
