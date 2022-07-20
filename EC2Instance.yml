@@ -10,6 +10,7 @@ Parameters:
     Default: 158.176.95.134/32
   SshSourceIpV6:
     Type: String
+    Default: 2600:1f18:502:2f02:12df:1893:a93c:2981/128
 Mappings:
     RegionToAmazonAMI:
         us-east-1:
