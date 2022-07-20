@@ -37,6 +37,8 @@ if [[ "$STACKSTATUS" == '"ROLLBACK_COMPLETE"' ]];then
   aws cloudformation wait stack-delete-complete --stack-name $STACKNAME
 fi
 
+STACKSTATUS=$(aws cloudformation list-stacks --query "StackSummaries[?StackName == '${STACKNAME}'].StackStatus | [0]")
+
 if [[ "$STACKSTATUS" == "null" ]] || [[ "$STACKSTATUS" == '"CREATE_FAILED"' ]] || [[ "$STACKSTATUS" == '"DELETE_COMPLETE"' ]]; then
   echo "This is a new Stack. Let's create it ... "
   echo 'Waiting to create Stack ...'
