@@ -23,22 +23,37 @@ fi
 
 echo 'Please enter your Stack name:'
 read STACKNAME
-MYIP=$(curl icanhazip.com)
+MYIP=$(curl -s icanhazip.com)
 echo "Your public IP address is $MYIP . This address would being used as the only permitted source IP for SSH."
 ssh-keygen -b 2048 -t rsa -f ./awskey -q -N ""
 SSHKEY=$(cat ./awskey.pub)
 echo "New SSH key has been created. This key would being used as your ssh key to login instances."
+IPLEN=$(curl -s icanhazip.com | wc -c | tr -d ' ')
 
 STACKSTATUS=$(aws cloudformation list-stacks --query "StackSummaries[?StackName == '${STACKNAME}'].StackStatus | [0]")
+
+if [[ "$STACKSTATUS" == '"ROLLBACK_COMPLETE"' ]];then
+  aws cloudformation delete-stack --stack-name $STACKNAME
+  aws cloudformation wait stack-delete-complete --stack-name $STACKNAME
+fi
 
 if [[ "$STACKSTATUS" == "null" ]] || [[ "$STACKSTATUS" == '"CREATE_FAILED"' ]] || [[ "$STACKSTATUS" == '"DELETE_COMPLETE"' ]]; then
   echo "This is a new Stack. Let's create it ... "
   echo 'Waiting to create Stack ...'
-  aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIp,ParameterValue="$MYIP/32" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
-elif [[ "$STACKSTATUS" == '"UPDATE_ROLLBACK_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"CREATE_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"UPDATE_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"UPDATE_FAILED"' ]] || [[ "$STACKSTATUS" == '"ROLLBACK_COMPLETE"' ]]; then
+  if [ "$IPLEN" -gt 17 ];then
+    echo "Your IP address is IPV6"
+    aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV6,ParameterValue="$MYIP/128" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
+  else
+    echo "Your IP address is IPV4"
+    aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
+elif [[ "$STACKSTATUS" == '"UPDATE_ROLLBACK_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"CREATE_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"UPDATE_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"UPDATE_FAILED"' ]]; then
   echo "This Stack has already been deployed. Let's update it ... "
   echo 'Waiting to update Stack ...'
-  aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIp,ParameterValue="$MYIP/32" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
+  if [ "$IPLEN" -gt 17 ];then
+    aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV6,ParameterValue="$MYIP/128" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
+  else
+    aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
+  fi
 else
   echo Stack status is "$STACKSTATUS"
   exit 1
