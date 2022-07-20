@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 chmod +x ./ansible_install.sh
 rm -f ./AnsibleInventory
