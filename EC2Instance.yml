@@ -41,12 +41,20 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
-  Route:
+  RouteV4:
     DependsOn:
       - InternetGateway
     Type: AWS::EC2::Route
     Properties:
       DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref RouteTable
+  RouteV6:
+    DependsOn:
+      - InternetGateway
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: '::/0'
       GatewayId: !Ref InternetGateway
       RouteTableId: !Ref RouteTable
   Subnet:
