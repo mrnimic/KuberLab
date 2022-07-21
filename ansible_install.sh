@@ -3,4 +3,5 @@
 sudo apt update && sudo apt install -y ansible
 sudo touch /etc/ansible/hosts
 
-ansible all -m ping -i ./AnsibleInventory -u ubuntu
+echo "> Testing connection ..."
+ansible all -m ping -i ./AnsibleInventory -u ubuntu --private-key ./awskey

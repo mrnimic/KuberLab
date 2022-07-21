@@ -67,6 +67,6 @@ aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Ou
 echo "[k8sWorkers]" >> ./AnsibleInventory
 aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker1PublicIP'].OutputValue" --output text >> ./AnsibleInventory
 aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PublicIP'].OutputValue" --output text >> ./AnsibleInventory
-
-echo installing Ansible ...
+echo "ansible_ssh_common_args=\'-o StrictHostKeyChecking=no\'" >> ./AnsibleInventory
+echo ">installing Ansible ..."
 sh ./ansible_install.sh
