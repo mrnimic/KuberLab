@@ -37,6 +37,11 @@ Resources:
     Properties:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
+  VpcCidrIpv6:
+    Type: AWS::EC2::VPCCidrBlock
+    Properties:
+      AmazonProvidedIpv6CidrBlock: true
+      VpcId: !Ref VPC
   RouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
