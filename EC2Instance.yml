@@ -39,7 +39,15 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
+  PublicBRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
   PrivRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+  PrivBRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
@@ -51,11 +59,26 @@ Resources:
       DestinationCidrBlock: '0.0.0.0/0'
       GatewayId: !Ref InternetGateway
       RouteTableId: !Ref RouteTable
+  PublicBRouteV4:
+    DependsOn:
+      - InternetGateway
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref PublicBRouteTable
   Subnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.0.0/24
+      AvailabilityZone: "us-east-1a"
+      MapPublicIpOnLaunch: "true"
+  PublicBSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
       AvailabilityZone: "us-east-1a"
       MapPublicIpOnLaunch: "true"
   PrivSubnet:
@@ -65,15 +88,32 @@ Resources:
       CidrBlock: 10.0.1.0/24
       AvailabilityZone: "us-east-1a"
       MapPublicIpOnLaunch: "False"
+  PrivBSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: "us-east-1a"
+      MapPublicIpOnLaunch: "False"
   RouteTableAssosiation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref Subnet
       RouteTableId: !Ref RouteTable
+  PublicBRouteTableAssosiation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicBSubnet
+      RouteTableId: !Ref PublicBRouteTable
   PrivRouteTableAssosiation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PrivSubnet
+      RouteTableId: !Ref PrivBRouteTable
+  PrivBRouteTableAssosiation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivBSubnet
       RouteTableId: !Ref PrivRouteTable
   EC2SecurityGroup:
       Type: AWS::EC2::SecurityGroup
@@ -217,6 +257,7 @@ Resources:
         Scheme: internet-facing # or internal
         Subnets:
         - Ref: Subnet
+        - Ref: PublicBSubnet
         SecurityGroups:
         - Ref: ELBSecurityGroup
 Outputs:
