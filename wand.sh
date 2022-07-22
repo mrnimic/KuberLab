@@ -41,17 +41,18 @@ if [[ "$STACKSTATUS" == "null" ]] || [[ "$STACKSTATUS" == '"CREATE_FAILED"' ]] |
   echo ">This is a new Stack. Let's create it ... "
   echo '>Waiting to create Stack ...'
   if [ "$IPLEN" -gt 17 ];then
-    echo ">Your IP address is IPV6"
-    aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV6,ParameterValue="$MYIP/64" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
+    echo ">Your IP address is IPV6. Please change your IP address or internet provider."
+    exit 1
   else
-    echo ">Your IP address is IPV4"
+    echo ">Your IP address is IPV4. Resuming the script..."
     aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
   fi
 elif [[ "$STACKSTATUS" == '"UPDATE_ROLLBACK_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"CREATE_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"UPDATE_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"UPDATE_FAILED"' ]]; then
   echo ">This Stack has already been deployed. Let's update it ... "
   echo '>Waiting to update Stack ...'
   if [ "$IPLEN" -gt 17 ];then
-    aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV6,ParameterValue="$MYIP/64" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
+    echo ">Your IP address is IPV6. Please change your IP address or internet provider."
+    exit 1
   else
     aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
   fi
@@ -60,7 +61,7 @@ else
   exit 1
 fi
 
-echo ">Resource creation is done!"
+echo ">Resource creation is done."
 
 echo "[k8sControlPlane-Jenkins]" >> ./AnsibleInventory
 aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'JenkinsPublicIP'].OutputValue" --output text >> ./AnsibleInventory
