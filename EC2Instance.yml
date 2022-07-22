@@ -79,7 +79,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.2.0/24
-      AvailabilityZone: "us-east-1a"
+      AvailabilityZone: "ap-southeast-2a"
       MapPublicIpOnLaunch: "true"
   PrivSubnet:
     Type: AWS::EC2::Subnet
@@ -93,7 +93,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.3.0/24
-      AvailabilityZone: "us-east-1a"
+      AvailabilityZone: "ap-southeast-2a"
       MapPublicIpOnLaunch: "False"
   RouteTableAssosiation:
     Type: AWS::EC2::SubnetRouteTableAssociation
