@@ -159,27 +159,27 @@ Resources:
 
   JenkinsTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
-      Properties:
-        HealthCheckIntervalSeconds: 30
-        HealthCheckProtocol: HTTP
-        HealthCheckTimeoutSeconds: 15
-        HealthyThresholdCount: 5
-        Matcher:
-          HttpCode: '200'
-        Name: JenkinsTargetGroup
-        Port: 80
-        Protocol: HTTP
-        TargetGroupAttributes:
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 15
+      HealthyThresholdCount: 5
+      Matcher:
+        HttpCode: '200'
+      Name: JenkinsTargetGroup
+      Port: 80
+      Protocol: HTTP
+      TargetGroupAttributes:
         - Key: deregistration_delay.timeout_seconds
           Value: '20'
-        Targets:
+      Targets:
         - Id:
             Ref: JenkinsK8sControlPlane
           Port: 8080
-        UnhealthyThresholdCount: 3
-        VpcId:
-          Ref: 'VPC'
-        Tags:
+      UnhealthyThresholdCount: 3
+      VpcId:
+        Ref: 'VPC'
+      Tags:
         - Key: Name
           Value: JenkinsTargetGroup
         - Key: Port
