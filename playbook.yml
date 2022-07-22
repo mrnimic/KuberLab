@@ -4,14 +4,15 @@
   remote_user: ubuntu
   become_user: root
   tasks:
-#  - name: Download Long Term Jenkins release
-#    get_url:
-#      url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
-#      dest: /etc/yum.repos.d/jenkins.repo
 
   - name: Installing Java 11 on Jenkins instance
     ansible.builtin.apt:
       name: openjdk-11-jdk
+      state: present
+      update_cache: yes
+  - name: Installing fontconfig on Jenkins instance
+    ansible.builtin.apt:
+      name: fontconfig
       state: present
   - name: Adding Jenkins apt key
     ansible.builtin.apt_key:
@@ -24,5 +25,8 @@
   - name: Installing Jenkins Service on Jenkins instance
     ansible.builtin.apt:
       name: jenkins
-      update_cache: yes
       state: present
+  - name: Start service Jenkins, if not started
+    ansible.builtin.service:
+      name: jenkins
+      state: started
