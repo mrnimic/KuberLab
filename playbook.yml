@@ -13,3 +13,16 @@
     ansible.builtin.apt:
       name: openjdk-11-jdk
       state: present
+  - name: Adding Jenkins apt key
+    ansible.builtin.apt_key:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      state: present
+  - name: Add Jenkins repository into sources list
+    ansible.builtin.apt_repository:
+      repo: deb https://pkg.jenkins.io/debian-stable binary/
+      state: present
+  - name: Installing Jenkins Service on Jenkins instance
+    ansible.builtin.apt:
+      name: jenkins
+      update_cache: yes
+      state: present
