@@ -1,0 +1,15 @@
+---
+- hosts: k8sControlPlane-Jenkins
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+#  - name: Download Long Term Jenkins release
+#    get_url:
+#      url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+#      dest: /etc/yum.repos.d/jenkins.repo
+
+  - name: Installing Java 11 on Jenkins instance
+    ansible.builtin.apt:
+      name: openjdk-11-jdk
+      state: present
