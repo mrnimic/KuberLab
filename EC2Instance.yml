@@ -71,7 +71,17 @@ Resources:
               CidrIp: !Ref SshSourceIpV4
             - IpProtocol: -1
               CidrIp: 10.0.0.0/24
-              
+  ELBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Port 80
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  
   JenkinsK8sControlPlane: 
     Type: AWS::EC2::Instance
     Properties: 
@@ -100,7 +110,6 @@ Resources:
           unzip awscliv2.zip
           sudo ./aws/install --bin-dir /bin
           echo "complete -C '/bin/aws_completer' aws" >> /home/ubuntu/.bashrc
-
   k8sWorker1:
     Type: AWS::EC2::Instance
     Properties: 
@@ -148,6 +157,52 @@ Resources:
           #!/bin/bash -xe
           #cd /home/ubuntu/
 
+  JenkinsTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+      Properties:
+        HealthCheckIntervalSeconds: 30
+        HealthCheckProtocol: HTTP
+        HealthCheckTimeoutSeconds: 15
+        HealthyThresholdCount: 5
+        Matcher:
+          HttpCode: '200'
+        Name: JenkinsTargetGroup
+        Port: 80
+        Protocol: HTTP
+        TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '20'
+        Targets:
+        - Id:
+            Ref: JenkinsK8sControlPlane
+          Port: 8080
+        UnhealthyThresholdCount: 3
+        VpcId:
+          Ref: 'VPC'
+        Tags:
+        - Key: Name
+          Value: JenkinsTargetGroup
+        - Key: Port
+          Value: 80
+  JenkinsALBListener:
+      Type: AWS::ElasticLoadBalancingV2::Listener
+      Properties:
+        DefaultActions:
+          - Type: forward
+            TargetGroupArn:
+              Ref: JenkinsTargetGroup
+        LoadBalancerArn:
+            Ref: ApplicationLoadBalancer
+        Port: 80
+        Protocol: HTTP
+  ApplicationLoadBalancer:
+      Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+      Properties:
+        Scheme: internet-facing # or internal
+        Subnets:
+        - Ref: Subnet
+        SecurityGroups:
+        - Ref: ELBSecurityGroup
 Outputs:
   JenkinsPublicIP:
     Value: !GetAtt JenkinsK8sControlPlane.PublicIp
@@ -158,4 +213,8 @@ Outputs:
   Worker2PublicIP:
     Value: !GetAtt k8sWorker2.PublicIp
     Description: "Worker2's Public ip"
+  ALBHostName:
+        Description: 'Application Load Balancer Hostname'
+        Value:
+          !GetAtt ApplicationLoadBalancer.DNSName
 
