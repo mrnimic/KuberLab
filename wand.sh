@@ -6,12 +6,15 @@ rm -f ./awskey*
 HOMEDIR=$(echo $HOME)
 
 #Installing awscli V2 on this machine
-sudo apt update && sudo apt install -y curl unzip
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$HOMEDIR/awscliv2.zip"
-unzip $HOMEDIR/awscliv2.zip
-sudo $HOMEDIR/aws/install -b /usr/local/bin
-sudo echo "complete -C '/usr/local/bin/aws_completer' aws" >> $HOMEDIR/.bashrc
-source $HOMEDIR/.bashrc
+if [[ $(command -v aws) ]]; then
+  echo ">awscli is not installed. Installing ..."
+  sudo apt update && sudo apt install -y curl unzip
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$HOMEDIR/awscliv2.zip"
+  unzip $HOMEDIR/awscliv2.zip -d $HOMEDIR
+  sudo $HOMEDIR/aws/install -b /usr/local/bin
+  sudo echo "complete -C '/usr/local/bin/aws_completer' aws" >> $HOMEDIR/.bashrc
+  source $HOMEDIR/.bashrc
+fi
 
 echo ">Is this a new Sandbox?(y/n)"
 read yn
