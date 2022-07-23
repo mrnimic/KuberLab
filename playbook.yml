@@ -51,6 +51,14 @@
     ansible.builtin.service:
       name: jenkins
       state: restarted
+  - name: Setting k8s-control hostname
+    ansible.builtin.hostname:
+      name: k8s-control
+  - name: Editing /etc/hosts
+    ansible.builtin.lineinfile:
+      path: /etc/hosts
+      line: "{{ worker1_private_ip }}" k8s-control
+      #create: yes
   # In order to test vars
   - name: writing in file
     ansible.builtin.copy:
