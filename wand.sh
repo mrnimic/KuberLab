@@ -7,6 +7,8 @@ HOMEDIR=$(echo $HOME)
 
 #Installing awscli V2 on this machine
 if [[ $(command -v aws) ]]; then
+  echo ">awscli is already installed."
+else
   echo ">awscli is not installed. Installing ..."
   sudo apt update && sudo apt install -y curl unzip
   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$HOMEDIR/awscliv2.zip"
