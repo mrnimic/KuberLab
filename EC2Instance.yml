@@ -127,6 +127,11 @@ Resources:
               CidrIp: !Ref SshSourceIpV4
             - IpProtocol: -1
               CidrIp: 10.0.0.0/24
+            - IpProtocol: tcp
+              FromPort: 8080
+              ToPort: 8080
+              SourceSecurityGroupId:
+                Ref: ELBSecurityGroup
   ELBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
