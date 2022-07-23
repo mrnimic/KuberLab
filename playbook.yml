@@ -30,3 +30,24 @@
     ansible.builtin.service:
       name: jenkins
       state: started
+  - name: Removing /var/lib/jenkins
+    ansible.builtin.file:
+      path: /var/lib/jenkins
+      state: absent
+  - name: Clone Jenkins home dir
+    ansible.builtin.git:
+      repo: https://github.com/mrnimic/jenkins.git
+      dest: /var/lib
+      clone: yes
+      update: yes
+  - name: Recursively change ownership of Jenkins Home dir
+    ansible.builtin.file:
+      path: /var/lib/jenkins
+      state: directory
+      recurse: yes
+      owner: jenkins
+      group: jenkins
+  - name: Restart Jenkins service, in all cases
+    ansible.builtin.service:
+      name: jenkins
+      state: restarted
