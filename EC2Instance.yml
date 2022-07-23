@@ -269,14 +269,24 @@ Outputs:
   JenkinsPublicIP:
     Value: !GetAtt JenkinsK8sControlPlane.PublicIp
     Description: "Jenkins's Public ip"
+  JenkinsPrivateIP:
+    Value: !GetAtt JenkinsK8sControlPlane.PrivateIp
+    Description: "Jenkins's Private ip"
   Worker1PublicIP:
     Value: !GetAtt k8sWorker1.PublicIp
     Description: "Worker1's Public ip"
+  Worker1PrivateIP:
+    Value: !GetAtt k8sWorker1.PrivateIp
+    Description: "Worker1's Private ip"
   Worker2PublicIP:
     Value: !GetAtt k8sWorker2.PublicIp
     Description: "Worker2's Public ip"
+  Worker2PrivateIP:
+    Value: !GetAtt k8sWorker2.PrivateIp
+    Description: "Worker2's Private ip"
   ALBHostName:
         Description: 'Application Load Balancer Hostname'
         Value:
           !GetAtt ApplicationLoadBalancer.DNSName
+  
 
