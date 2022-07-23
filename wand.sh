@@ -6,7 +6,7 @@ rm -f ./awskey*
 HOMEDIR=$(echo $HOME)
 
 #Installing awscli V2 on this machine
-sudo apt update && apt install -y curl
+sudo apt update && sudo apt install -y curl
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$HOMEDIR/awscliv2.zip"
 unzip $HOMEDIR/awscliv2.zip
 sudo $HOMEDIR/aws/install -b /usr/local/bin
