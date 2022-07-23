@@ -85,3 +85,5 @@ aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Ou
 aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PublicIP'].OutputValue" --output text >> ./AnsibleInventory
 echo ">installing Ansible ..."
 sh ./ansible_install.sh
+
+ansible-playbook -i ./AnsibleInventory --private-key ./awskey  playbook.yml
