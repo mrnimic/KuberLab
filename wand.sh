@@ -16,6 +16,7 @@ else
   sudo $HOMEDIR/aws/install -b /usr/local/bin
   sudo echo "complete -C '/usr/local/bin/aws_completer' aws" >> $HOMEDIR/.bashrc
   source $HOMEDIR/.bashrc
+  aws configure set default.region us-east-1
 fi
 
 echo ">Is this a new Sandbox?(y/n)"
