@@ -76,15 +76,22 @@ else
   exit 1
 fi
 
-echo ">Resource creation is done."
+JENKINS_PUBIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'JenkinsPublicIP'].OutputValue" --output text)
+JENKINS_PRIVIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'JenkinsPrivateIP'].OutputValue" --output text)
+WORKER1_PUBIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker1PublicIP'].OutputValue" --output text)
+WORKER1_PRIVIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker1PrivateIP'].OutputValue" --output text)
+WORKER2_PUBIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PublicIP'].OutputValue" --output text)
+WORKER2_PRIVIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PrivateIP'].OutputValue" --output text)
 
 echo "[k8sControlPlane-Jenkins]" >> ./AnsibleInventory
-aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'JenkinsPublicIP'].OutputValue" --output text >> ./AnsibleInventory
+echo "$JENKINS_PUBIP worker1_private_ip=$WORKER1_PRIVIP worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
 echo "[k8sWorkers]" >> ./AnsibleInventory
-aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker1PublicIP'].OutputValue" --output text >> ./AnsibleInventory
-aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PublicIP'].OutputValue" --output text >> ./AnsibleInventory
+echo "$WORKER1_PUBIP jenkins_private_ip=$JENKINS_PRIVIP worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
+echo "$WORKER2_PUBIP jenkins_private_ip=$JENKINS_PRIVIP worker1_private_ip=$WORKER1_PRIVIP" >> ./AnsibleInventory
 
 echo ">installing Ansible ..."
 sh ./ansible_install.sh
 
 ansible-playbook -i ./AnsibleInventory --private-key ./awskey  playbook.yml
+
+

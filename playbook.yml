@@ -51,3 +51,8 @@
     ansible.builtin.service:
       name: jenkins
       state: restarted
+  # In order to test vars
+  - name: writing in file
+    ansible.builtin.copy:
+      content: "{{ worker1_private_ip }}"
+      dest: /home/ubuntu/workerip.txt
