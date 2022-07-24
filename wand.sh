@@ -38,9 +38,9 @@ fi
 echo '>Please enter your Stack name:'
 read STACKNAME
 MYIP=$(curl -s icanhazip.com)
-echo ">Your public IP address is $MYIP . This address would being used as the only permitted source IP for SSH."
+echo ">Your public IP address is $MYIP . This address will be used as the only permitted source IP for SSH."
 SSHKEY=$(cat ./awskey.pub)
-echo ">New SSH key has been created. This key would being used as your ssh key to login instances."
+echo ">New SSH key has been created. This key will be used as your ssh key to login instances."
 IPLEN=$(curl -s icanhazip.com | wc -c | tr -d ' ')
 
 STACKSTATUS=$(aws cloudformation list-stacks --query "StackSummaries[?StackName == '${STACKNAME}'].StackStatus | [0]")
@@ -69,6 +69,10 @@ elif [[ "$STACKSTATUS" == '"UPDATE_ROLLBACK_COMPLETE"' ]] || [[ "$STACKSTATUS" =
     echo ">Your IP address is IPV6. Please change your IP address or internet provider."
     exit 1
   else
+    echo ">Your IP address is IPV4. Waiting to create Stack ..."
+    rm -f ./awskey*
+    ssh-keygen -b 2048 -t rsa -f ./awskey -q -N ""
+    SSHKEY=$(cat ./awskey.pub)
     aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
   fi
 else
@@ -83,11 +87,6 @@ WORKER1_PRIVIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --qu
 WORKER2_PUBIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PublicIP'].OutputValue" --output text)
 WORKER2_PRIVIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PrivateIP'].OutputValue" --output text)
 
-#echo "[k8sControlPlane-Jenkins]" >> ./AnsibleInventory
-#echo "$JENKINS_PUBIP worker1_private_ip=$WORKER1_PRIVIP worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
-#echo "[k8sWorkers]" >> ./AnsibleInventory
-#echo "$WORKER1_PUBIP jenkins_private_ip=$JENKINS_PRIVIP worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
-#echo "$WORKER2_PUBIP jenkins_private_ip=$JENKINS_PRIVIP worker1_private_ip=$WORKER1_PRIVIP" >> ./AnsibleInventory
 
 echo "[k8sControlPlane-Jenkins]" >> ./AnsibleInventory
 echo "Jenkins ansible_host=$JENKINS_PUBIP" >> ./AnsibleInventory
@@ -99,7 +98,7 @@ echo "jenkins_private_ip=$JENKINS_PRIVIP" >> ./AnsibleInventory
 echo "worker1_private_ip=$WORKER1_PRIVIP" >> ./AnsibleInventory
 echo "worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
 
-echo ">installing Ansible ..."
+echo ">Installing Ansible ..."
 sh ./ansible_install.sh
 
 ansible-playbook -i ./AnsibleInventory --private-key ./awskey  playbook.yml
