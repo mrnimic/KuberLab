@@ -24,9 +24,9 @@
       state: present
 
   - name: Add Docker’s official GPG key
-     ansible.builtin.apt_key:
-       url: https://download.docker.com/linux/ubuntu/gpg
-       state: present
+    ansible.builtin.apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
 
   - name: Add Jenkins repository into sources list
     ansible.builtin.apt_repository:
@@ -34,10 +34,10 @@
       state: present
 
   - name: Add Docker Repository
-     ansible.builtin.apt_repository:
-       repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
-       state: present
-       filename: docker
+    ansible.builtin.apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+      filename: docker
 
   - name: Installing Jenkins Service on Jenkins instance
     ansible.builtin.apt:
@@ -131,7 +131,7 @@
       line: net.bridge.bridge-nf-call-ip6tables = 1
 
   - name: Apply sysctl params without reboot.
-     command: sysctl --system
+    command: sysctl --system
   
   - name: Installing containerd on Jenkins instance
     ansible.builtin.apt:
@@ -148,26 +148,26 @@
     shell: /usr/bin/containerd config default > /etc/containerd/config.toml
 
   - name: Enable containerd service, and start it.
-     systemd: 
-       name: containerd
-       state: restarted
-       enabled: yes
-       daemon-reload: yes
+    systemd: 
+      name: containerd
+      state: restarted
+      enabled: yes
+      daemon-reload: yes
 
   - name: Make the Swap inactive
     command: swapoff -a
 
   - name: Add Google official GPG key
-     apt_key:
-       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-       state: present
+    apt_key:
+      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      state: present
 
   - name: Add Kubernetes Repository
-     apt_repository:
-       repo: deb http://apt.kubernetes.io/ kubernetes-xenial main 
-       state: present
-       filename: kubernetes
-       mode: 0600
+    apt_repository:
+      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main 
+      state: present
+      filename: kubernetes
+      mode: 0600
 
   - name: Installing kubelet, kubeadm and kubectl on Jenkins instance
     ansible.builtin.apt:
