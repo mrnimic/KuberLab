@@ -1,5 +1,5 @@
 Description: >
-  This is a template that creates EC2 instances, VPC, Subnet, RoutingTable and
+  Kubernetes laboratory
 
 Parameters:
   SshKeyPair:
