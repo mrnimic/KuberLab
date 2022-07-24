@@ -54,11 +54,39 @@
   - name: Setting k8s-control hostname
     ansible.builtin.hostname:
       name: k8s-control
-  - name: Editing /etc/hosts
+  - name: Editing /etc/hosts for Jenkins host
     ansible.builtin.lineinfile:
       path: /etc/hosts
-      line: "{{ worker1_private_ip }} k8s-control"
-      #create: yes
+      line: "{{ jenkins_private_ip }} k8s-control"
+  - name: Editing /etc/hosts for Worker1 host
+    ansible.builtin.lineinfile:
+      path: /etc/hosts
+      line: "{{ worker1_private_ip }} k8s-worker1"
+  - name: Editing /etc/hosts for Worker2 host
+    ansible.builtin.lineinfile:
+      path: /etc/hosts
+      line: "{{ worker2_private_ip }} k8s-worker2"
+  - name: Editing /etc/modules-load.d/containerd.conf
+    ansible.builtin.lineinfile:
+      path: /etc/modules-load.d/containerd.conf
+      line: "overlay"
+  - name: Editing /etc/modules-load.d/containerd.conf
+    ansible.builtin.lineinfile:
+      path: /etc/modules-load.d/containerd.conf
+      line: "br_netfilter"
+  - name: Add the overlay module
+    modprobe:
+      name: overlay
+      state: present
+  - name: Add the br_netfilter module
+    modprobe:
+      name: br_netfilter
+      state: present
+  - name: Ensure net.bridge.bridge-nf-call-iptables is set to 1
+    ansible.builtin.lineinfile:
+      path: /etc/selinux/config
+      regexp: '^net.bridge.bridge-nf-call-iptables.*'
+      line: net.bridge.bridge-nf-call-iptables = 1
   # In order to test vars
   - name: writing in file
     ansible.builtin.copy:
