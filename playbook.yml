@@ -1,10 +1,28 @@
 ---
-- hosts: k8sControlPlane-Jenkins
+- hosts: Worker1
   become: yes
   remote_user: ubuntu
   become_user: root
   tasks:
+  - name: Setting k8s-worker1 hostname
+    ansible.builtin.hostname:
+      name: k8s-worker1
 
+- hosts: Worker2
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  - name: Setting k8s-worker2 hostname
+    ansible.builtin.hostname:
+      name: k8s-worker2
+  
+
+- hosts: "k8sControlPlane-Jenkins, k8sWorkers"
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
   - name: Installing Java 11 on Jenkins instance
     ansible.builtin.apt:
       name:
