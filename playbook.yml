@@ -70,6 +70,7 @@
     ansible.builtin.lineinfile:
       path: /etc/modules-load.d/containerd.conf
       line: "overlay"
+      create: yes
   - name: Editing /etc/modules-load.d/containerd.conf
     ansible.builtin.lineinfile:
       path: /etc/modules-load.d/containerd.conf
@@ -84,9 +85,9 @@
       state: present
   - name: Ensure net.bridge.bridge-nf-call-iptables is set to 1
     ansible.builtin.lineinfile:
-      path: /etc/selinux/config
-      regexp: '^net.bridge.bridge-nf-call-iptables.*'
+      path: /etc/sysctl.d/99-kubernetes-cri.conf
       line: net.bridge.bridge-nf-call-iptables = 1
+      create: yes
   # In order to test vars
   - name: writing in file
     ansible.builtin.copy:
