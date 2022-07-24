@@ -1,28 +1,14 @@
 ---
-- hosts: Worker1
+- hosts: k8sControlPlane-Jenkins
   become: yes
   remote_user: ubuntu
   become_user: root
   tasks:
-  - name: Setting k8s-worker1 hostname
-    ansible.builtin.hostname:
-      name: k8s-worker1
 
-- hosts: Worker2
-  become: yes
-  remote_user: ubuntu
-  become_user: root
-  tasks:
-  - name: Setting k8s-worker2 hostname
+  - name: Setting k8s-control hostname
     ansible.builtin.hostname:
-      name: k8s-worker2
-  
+      name: k8s-control
 
-- hosts: "k8sControlPlane-Jenkins, k8sWorkers"
-  become: yes
-  remote_user: ubuntu
-  become_user: root
-  tasks:
   - name: Installing Java 11 on Jenkins instance
     ansible.builtin.apt:
       name:
@@ -36,26 +22,15 @@
       state: present
       update_cache: yes
 
-  - name: Adding Jenkins apt key
-    ansible.builtin.apt_key:
-      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
-      state: present
-
-  - name: Add Docker’s official GPG key
-    ansible.builtin.apt_key:
-      url: https://download.docker.com/linux/ubuntu/gpg
-      state: present
-
   - name: Add Jenkins repository into sources list
     ansible.builtin.apt_repository:
       repo: deb https://pkg.jenkins.io/debian-stable binary/
       state: present
-
-  - name: Add Docker Repository
-    ansible.builtin.apt_repository:
-      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+  
+  - name: Adding Jenkins apt key
+    ansible.builtin.apt_key:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
       state: present
-      filename: docker
 
   - name: Installing Jenkins Service on Jenkins instance
     ansible.builtin.apt:
@@ -92,9 +67,48 @@
       name: jenkins
       state: restarted
 
-  - name: Setting k8s-control hostname
+- hosts: Worker1
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  - name: Setting k8s-worker1 hostname
     ansible.builtin.hostname:
-      name: k8s-control
+      name: k8s-worker1
+
+- hosts: Worker2
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  - name: Setting k8s-worker2 hostname
+    ansible.builtin.hostname:
+      name: k8s-worker2
+
+- hosts: "k8sControlPlane-Jenkins, k8sWorkers"
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  
+  - name: Add Docker’s official GPG key
+    ansible.builtin.apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker Repository
+    ansible.builtin.apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+      filename: docker
+
+  - name: Installing containerd, apt-transport-https and curl
+    ansible.builtin.apt:
+      name:
+      - containerd
+      - apt-transport-https
+      - curl
+      state: present
 
   - name: Editing /etc/hosts for Jenkins host
     ansible.builtin.lineinfile:
@@ -150,13 +164,8 @@
 
   - name: Apply sysctl params without reboot.
     command: sysctl --system
-  
-  - name: Installing containerd on Jenkins instance
-    ansible.builtin.apt:
-      name: containerd
-      state: present
 
-  - name: Create a directory if it does not exist
+  - name: Create /etc/containerd directory if it does not exist
     ansible.builtin.file:
       path: /etc/containerd
       state: directory
