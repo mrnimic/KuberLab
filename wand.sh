@@ -83,11 +83,21 @@ WORKER1_PRIVIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --qu
 WORKER2_PUBIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PublicIP'].OutputValue" --output text)
 WORKER2_PRIVIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PrivateIP'].OutputValue" --output text)
 
+#echo "[k8sControlPlane-Jenkins]" >> ./AnsibleInventory
+#echo "$JENKINS_PUBIP worker1_private_ip=$WORKER1_PRIVIP worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
+#echo "[k8sWorkers]" >> ./AnsibleInventory
+#echo "$WORKER1_PUBIP jenkins_private_ip=$JENKINS_PRIVIP worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
+#echo "$WORKER2_PUBIP jenkins_private_ip=$JENKINS_PRIVIP worker1_private_ip=$WORKER1_PRIVIP" >> ./AnsibleInventory
+
 echo "[k8sControlPlane-Jenkins]" >> ./AnsibleInventory
-echo "$JENKINS_PUBIP worker1_private_ip=$WORKER1_PRIVIP worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
+echo "Jenkins ansible_host=$JENKINS_PUBIP" >> ./AnsibleInventory
 echo "[k8sWorkers]" >> ./AnsibleInventory
-echo "$WORKER1_PUBIP jenkins_private_ip=$JENKINS_PRIVIP worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
-echo "$WORKER2_PUBIP jenkins_private_ip=$JENKINS_PRIVIP worker1_private_ip=$WORKER1_PRIVIP" >> ./AnsibleInventory
+echo "Worker1 ansible_host=$WORKER1_PUBIP" >> ./AnsibleInventory
+echo "Worker2 ansible_host=$WORKER2_PUBIP" >> ./AnsibleInventory
+echo "[all:vars]" >> ./AnsibleInventory
+echo "jenkins_private_ip=$JENKINS_PRIVIP" >> ./AnsibleInventory
+echo "worker1_private_ip=$WORKER1_PRIVIP" >> ./AnsibleInventory
+echo "worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
 
 echo ">installing Ansible ..."
 sh ./ansible_install.sh
