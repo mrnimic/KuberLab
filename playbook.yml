@@ -157,6 +157,12 @@
   - name: Make the Swap inactive
     command: swapoff -a
 
+  - name: Remove Swap entry from /etc/fstab.
+    lineinfile:
+      dest: /etc/fstab
+      regexp: swap
+      state: absent
+
   - name: Add Google official GPG key
     apt_key:
       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
