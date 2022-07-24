@@ -197,3 +197,9 @@
     dpkg_selections:
       name: kubectl
       selection: hold
+
+  - name: Initialize the cluster
+    shell: kubeadm init --pod-network-cidr=10.0.0.0/24 >> cluster_initialized.txt
+      args:
+        chdir: $HOME
+        creates: cluster_initialized.txt
