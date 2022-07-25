@@ -232,9 +232,9 @@
   tasks:
 
   - name: Initialize the cluster
-    shell: "kubeadm init --pod-network-cidr={{ nodes_private_cidr }} >> cluster_initialized.txt"
+    shell: "kubeadm init --pod-network-cidr={{ nodes_private_cidr }} --kubernetes-version 1.24.0 >> cluster_initialized.txt"
     args:
-      chdir: $HOME
+      chdir: /home/ubuntu
       creates: cluster_initialized.txt
   
   - name: create .kube directory
