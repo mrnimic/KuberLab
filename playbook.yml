@@ -202,7 +202,7 @@
       filename: kubernetes
       mode: 0600
 
-  - name: Installing kubelet, kubeadm and kubectl on Jenkins instance
+  - name: Installing kubelet, kubeadm and kubectl
     ansible.builtin.apt:
       name:
         - kubelet=1.24.0-00
