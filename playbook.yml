@@ -8,15 +8,15 @@
   - name: Setting k8s-control hostname
     ansible.builtin.hostname:
       name: k8s-control
-
-  - name: Add Jenkins repository into sources list
-    ansible.builtin.apt_repository:
-      repo: deb https://pkg.jenkins.io/debian-stable binary/
-      state: present
   
   - name: Adding Jenkins apt key
     ansible.builtin.apt_key:
       url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      state: present
+      
+  - name: Add Jenkins repository into sources list
+    ansible.builtin.apt_repository:
+      repo: deb https://pkg.jenkins.io/debian-stable binary/
       state: present
 
   - name: Installing Java 11 on Jenkins instance
