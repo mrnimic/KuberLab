@@ -285,8 +285,11 @@ Outputs:
     Value: !GetAtt k8sWorker2.PrivateIp
     Description: "Worker2's Private ip"
   ALBHostName:
-        Description: 'Application Load Balancer Hostname'
-        Value:
-          !GetAtt ApplicationLoadBalancer.DNSName
-  
+    Description: 'Application Load Balancer Hostname'
+    Value:
+      !GetAtt ApplicationLoadBalancer.DNSName
+  SubnetRange:
+    Description: Private ip range of EC2 instances
+    Value:
+      !GetAtt Subnet.CidrBlock
 
