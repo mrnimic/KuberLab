@@ -60,7 +60,7 @@ if [[ "$STACKSTATUS" == "null" ]] || [[ "$STACKSTATUS" == '"CREATE_FAILED"' ]] |
     rm -f ./awskey*
     ssh-keygen -b 2048 -t rsa -f ./awskey -q -N ""
     SSHKEY=$(cat ./awskey.pub)
-    aws cloudformation create-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
+    aws cloudformation create-stack --stack-name $STACKNAME --template-body file://cf-kuberlab.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-create-complete --stack-name $STACKNAME
   fi
 elif [[ "$STACKSTATUS" == '"UPDATE_ROLLBACK_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"CREATE_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"UPDATE_COMPLETE"' ]] || [[ "$STACKSTATUS" == '"UPDATE_FAILED"' ]]; then
   echo ">This Stack has already been deployed. Let's update it ... "
@@ -73,7 +73,7 @@ elif [[ "$STACKSTATUS" == '"UPDATE_ROLLBACK_COMPLETE"' ]] || [[ "$STACKSTATUS" =
     rm -f ./awskey*
     ssh-keygen -b 2048 -t rsa -f ./awskey -q -N ""
     SSHKEY=$(cat ./awskey.pub)
-    aws cloudformation update-stack --stack-name $STACKNAME --template-body file://EC2Instance.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
+    aws cloudformation update-stack --stack-name $STACKNAME --template-body file://cf-kuberlab.yml --parameters ParameterKey=SshKeyPair,ParameterValue="$SSHKEY" ParameterKey=SshSourceIpV4,ParameterValue="$MYIP/32" && aws cloudformation wait stack-update-complete --stack-name $STACKNAME
   fi
 else
   echo \>Stack status is "$STACKSTATUS"
