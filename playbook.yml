@@ -13,7 +13,7 @@
     ansible.builtin.apt_key:
       url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
       state: present
-      
+
   - name: Add Jenkins repository into sources list
     ansible.builtin.apt_repository:
       repo: deb https://pkg.jenkins.io/debian-stable binary/
@@ -225,8 +225,29 @@
       name: kubectl
       selection: hold
 
+- hosts: k8sControlPlane-Jenkins
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+
   - name: Initialize the cluster
     shell: "kubeadm init --pod-network-cidr={{ nodes_private_cidr }} >> cluster_initialized.txt"
     args:
       chdir: $HOME
       creates: cluster_initialized.txt
+  
+  - name: create .kube directory
+    become: yes
+    become_user: ubuntu
+    file:
+      path: $HOME/.kube
+      state: directory
+      mode: 0755
+
+  - name: copy admin.conf to user's kube config
+    copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/ubuntu/.kube/config
+      remote_src: yes
+      owner: ubuntu
