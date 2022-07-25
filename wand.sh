@@ -86,7 +86,7 @@ WORKER1_PUBIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --que
 WORKER1_PRIVIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker1PrivateIP'].OutputValue" --output text)
 WORKER2_PUBIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PublicIP'].OutputValue" --output text)
 WORKER2_PRIVIP=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'Worker2PrivateIP'].OutputValue" --output text)
-
+NODES_PRIV_CIDR=$(aws cloudformation describe-stacks --stack-name $STACKNAME --query "Stacks[0].Outputs[?OutputKey == 'SubnetRange'].OutputValue" --output text)
 
 echo "[k8sControlPlane-Jenkins]" >> ./AnsibleInventory
 echo "Jenkins ansible_host=$JENKINS_PUBIP" >> ./AnsibleInventory
@@ -97,6 +97,7 @@ echo "[all:vars]" >> ./AnsibleInventory
 echo "jenkins_private_ip=$JENKINS_PRIVIP" >> ./AnsibleInventory
 echo "worker1_private_ip=$WORKER1_PRIVIP" >> ./AnsibleInventory
 echo "worker2_private_ip=$WORKER2_PRIVIP" >> ./AnsibleInventory
+echo "nodes_private_cidr=$NODES_PRIV_CIDR" >> ./AnsibleInventory
 
 echo ">Installing Ansible ..."
 sh ./ansible_install.sh
