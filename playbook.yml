@@ -232,7 +232,7 @@
   tasks:
 
   - name: Initialize the cluster
-    shell: "kubeadm init --pod-network-cidr={{ nodes_private_cidr }} --kubernetes-version 1.24.0 >> cluster_initialized.txt"
+    shell: "kubeadm init --pod-network-cidr={{ nodes_private_cidr }} --kubernetes-version 1.24.0 > cluster_initialized.txt"
     args:
       chdir: /home/ubuntu
       creates: cluster_initialized.txt
@@ -255,7 +255,33 @@
   - name: install Pod network
     become: yes
     become_user: ubuntu
-    shell: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml >> pod_network_setup.txt
+    shell: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml > pod_network_setup.txt
     args:
       chdir: $HOME
       creates: pod_network_setup.txt
+
+  - name: Exporting token
+    become: yes
+    become_user: ubuntu
+    shell: kubeadm token create --print-join-command
+    register: join_cmd
+
+- hosts: k8sWorkers
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  
+  - name: Joining workers to cluster
+    shell: {{ join_cmd.stdout }}
+
+- hosts: k8sControlPlane-Jenkins
+  remote_user: ubuntu
+
+  - name: Getting cluster info
+    shell: kubectl get nodes
+    register: cluster_info
+
+  - name: Printing cluster info
+    debug:
+      msg: "{{ cluster_info }}"
