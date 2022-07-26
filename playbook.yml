@@ -273,7 +273,7 @@
   tasks:
   
   - name: Joining workers to cluster
-    shell: "{{ hostvars['Jenkins']['join_cmd'] }}"
+    shell: "{{ hostvars['Jenkins']['join_cmd.stdout'] }}"
 
 - hosts: k8sControlPlane-Jenkins
   remote_user: ubuntu
