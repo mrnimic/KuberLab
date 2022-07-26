@@ -273,12 +273,12 @@
   tasks:
   
   - name: Joining workers to cluster
-    shell: {{ join_cmd.stdout }}
+    shell: "{{ join_cmd.stdout }}"
 
 - hosts: k8sControlPlane-Jenkins
   remote_user: ubuntu
   tasks:
-  
+
   - name: Getting cluster info
     shell: kubectl get nodes
     register: cluster_info
