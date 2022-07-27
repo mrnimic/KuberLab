@@ -1,4 +1,5 @@
 ---
+# Setting up Jenkins service on Master node
 - hosts: k8sControlPlane-Jenkins
   become: yes
   remote_user: ubuntu
@@ -66,7 +67,7 @@
     ansible.builtin.service:
       name: jenkins
       state: restarted
-
+# Changing Worker 1 Hostname
 - hosts: Worker1
   become: yes
   remote_user: ubuntu
@@ -75,7 +76,7 @@
   - name: Setting k8s-worker1 hostname
     ansible.builtin.hostname:
       name: k8s-worker1
-
+# Changing Worker 2 Hostname
 - hosts: Worker2
   become: yes
   remote_user: ubuntu
@@ -84,7 +85,7 @@
   - name: Setting k8s-worker2 hostname
     ansible.builtin.hostname:
       name: k8s-worker2
-
+# Installing Kubernetes tools on all nodes
 - hosts: "k8sControlPlane-Jenkins, k8sWorkers"
   become: yes
   remote_user: ubuntu
@@ -224,7 +225,7 @@
     dpkg_selections:
       name: kubectl
       selection: hold
-
+# Initializing cluster on Master node
 - hosts: k8sControlPlane-Jenkins
   become: yes
   remote_user: ubuntu
@@ -270,7 +271,7 @@
     add_host:
       name:   "K8S_TOKEN_HOLDER"
       token:  "{{ join_cmd.stdout }}"
-
+# Registering Workers on cluster
 - hosts: k8sWorkers
   become: yes
   remote_user: ubuntu
@@ -289,7 +290,7 @@
     service:
       name: NetworkManager
       state: reloaded
-
+# Show cluster status on Master node
 - hosts: k8sControlPlane-Jenkins
   remote_user: ubuntu
   tasks:
