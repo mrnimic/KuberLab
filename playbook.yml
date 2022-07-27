@@ -281,6 +281,10 @@
     shell: "{{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
 
 - hosts: "k8sControlPlane-Jenkins, k8sWorkers"
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
   - name: configure name servers
     net_system:
       name_servers:
