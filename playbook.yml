@@ -293,12 +293,12 @@
   become_user: root
   tasks:
   - name: reload resolvconf
-    service:
-      name: resolvconf
+    systemd:
+      name: resolvconf.service
       state: reloaded
   - name: reload systemd-resolved
-    service:
-      name: systemd-resolved
+    systemd:
+      name: systemd-resolved.service
       state: reloaded
 # Show cluster status on Master node
 - hosts: k8sControlPlane-Jenkins
