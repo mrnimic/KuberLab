@@ -280,6 +280,13 @@
   - name: Joining workers to cluster
     shell: "{{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
 
+- hosts: "k8sControlPlane-Jenkins, k8sWorkers"
+  - name: configure name servers
+    net_system:
+      name_servers:
+        - 8.8.8.8
+        - 8.8.4.4
+
 - hosts: k8sControlPlane-Jenkins
   remote_user: ubuntu
   tasks:
