@@ -296,6 +296,10 @@
     service:
       name: resolvconf
       state: reloaded
+  - name: reload systemd-resolved
+    service:
+      name: systemd-resolved
+      state: reloaded
 # Show cluster status on Master node
 - hosts: k8sControlPlane-Jenkins
   remote_user: ubuntu
