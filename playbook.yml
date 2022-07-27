@@ -109,7 +109,13 @@
       - containerd
       - apt-transport-https
       - curl
+      - resolvconf
       state: present
+
+  - name: Editing /etc/resolvconf/resolv.conf.d/head and insert DNS servers
+    ansible.builtin.lineinfile:
+      path: /etc/resolvconf/resolv.conf.d/head
+      line: "nameserver 8.8.8.8"
 
   - name: Editing /etc/hosts for Jenkins host
     ansible.builtin.lineinfile:
@@ -286,9 +292,9 @@
   remote_user: ubuntu
   become_user: root
   tasks:
-  - name: reload NetworkManager
+  - name: reload resolvconf
     service:
-      name: NetworkManager
+      name: resolvconf
       state: reloaded
 # Show cluster status on Master node
 - hosts: k8sControlPlane-Jenkins
