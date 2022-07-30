@@ -104,4 +104,6 @@ sh ./ansible_install.sh
 
 ansible-playbook -i ./AnsibleInventory --private-key ./awskey  playbook.yml
 
+sed -i "s/JenkinsHost.*/JenkinsHost=$JENKINS_PUBIP/g" ./lab-ssh.sh
+
 
