@@ -105,5 +105,6 @@ sh ./ansible_install.sh
 ansible-playbook -i ./AnsibleInventory --private-key ./awskey  playbook.yml
 
 sed -i "s/JenkinsHost.*/JenkinsHost=$JENKINS_PUBIP/g" ./lab-ssh.sh
-
+sed -i "s/Worker1Host.*/Worker1Host=$WORKER1_PUBIP/g" ./lab-ssh.sh
+sed -i "s/Worker2Host.*/Worker2Host=$WORKER2_PUBIP/g" ./lab-ssh.sh
 
