@@ -110,6 +110,7 @@
       - apt-transport-https
       - curl
       - resolvconf
+      - jq
       state: present
 
   - name: Editing /etc/resolvconf/resolv.conf.d/head and insert DNS servers
