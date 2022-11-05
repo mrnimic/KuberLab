@@ -1,8 +1,8 @@
 #!/bin/bash
 
-JenkinsHost=
-Worker1Host=
-Worker2Host=
+JenkinsHost=44.212.27.44
+Worker1Host=18.207.218.21
+Worker2Host=54.84.239.96
 
 echo "> Which host you want to login to?"
 echo "[1] Jenkins/ContorlPlane"
