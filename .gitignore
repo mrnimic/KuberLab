@@ -2,4 +2,4 @@ AnsibleInventory
 awskey
 awskey.pub
 lab-ssh.sh
-.terraform/*
+.terraform
