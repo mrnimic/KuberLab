@@ -18,7 +18,6 @@ resource "aws_key_pair" "KuberLab" {
   key_name   = "kuberlab-key"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDAlVjPoTZEQU/2jhXi94qIF1XvGKie46HFIexZlrXdgdYnRuRMeQKiN1LJ0S/CBMhzX/9CH8PnSasQ35AFBdhnECrKHc5jA6p7Xw0ivBKCBw5faVIoN+sYHQxbxpB305FH7VLVp6LEx8JdlnO5aVXQf7sqK9ZppbcZyH7TtiKYw8SYDR3PWugJ5poFnEP8Aub0Zzgz6+9IVnSB+575geZAwiozEEka/4QXCLBp6n5OGDFE78QHOWE3w1kxfdPmntKOKOttdr1L2gPAliWKsJ2afamGqga8afbi2yMnop7ygtrER19wc1xlNTVPZ1I70Jf3ECYTCAbxlSdGrDuP274l1iirMXo22B/JjQTQRVvrE8m0j/DQQ83ZGW3pRvTA96MTpDx2wlHS0H28nMgVVcKSHNZMkV++Mdt53G3E40FwvoQskKqv5MNOiIZFH2RZ9XsDRLi8oVR5KIspOTPgM4aJgeWrmNhOjQV+yJf1/W8g4xfYkuymYVFB7ZqtJjIhblE= nim@Nima.local"
 }
-
 resource "aws_vpc" "nimic-vpc" {
   cidr_block = "10.10.0.0/16"
   enable_dns_support = "true" #gives you an internal domain name
@@ -68,7 +67,6 @@ resource "aws_security_group" "ssh-allowed" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 }
-
 resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
