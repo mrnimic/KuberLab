@@ -1,5 +1,7 @@
-AnsibleInventory
+ansible/AnsibleInventory
 awskey
 awskey.pub
-lab-ssh.sh
+scripts/lab-ssh.sh
 .terraform
+terraform.tfstate*
+terraform.lock.hcl
