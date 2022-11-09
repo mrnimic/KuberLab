@@ -1,26 +1,7 @@
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
 resource "aws_vpc" "kuberlab-vpc" {
   cidr_block = "10.10.0.0/16"
   enable_dns_support = "true" #gives you an internal domain name
   enable_dns_hostnames = "true" #gives you an internal host name 
-}
-resource "aws_key_pair" "kuberLab-kp" {
-  key_name   = "kuberlab-key"
-  public_key = file("~/.ssh/id_rsa.pub")
 }
 resource "aws_internet_gateway" "kuberlab-igw" {
   vpc_id = aws_vpc.kuberlab-vpc.id
@@ -29,7 +10,6 @@ resource "aws_internet_gateway" "kuberlab-igw" {
     Name = "kuberlab"
   }
 }
-
 resource "aws_route_table" "kuberlab-rt-pub-1" {
   vpc_id = aws_vpc.kuberlab-vpc.id
   route {
@@ -91,73 +71,4 @@ resource "aws_route_table_association" "kuberlab-rta-priv-subnet-1"{
 resource "aws_route_table_association" "kuberlab-rta-priv-subnet-2"{
     subnet_id = "${aws_subnet.kuberlab-priv-subnet-2.id}"
     route_table_id = "${aws_route_table.kuberlab-rt-priv-2.id}"
-}
-
-resource "aws_security_group" "kuberlab-sg-ec2" {
-    vpc_id = "${aws_vpc.kuberlab-vpc.id}"
-    
-    egress {
-        from_port = 0
-        to_port = 0
-        protocol = -1
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-    ingress {
-        from_port = 22
-        to_port = 22
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-    ingress {
-        from_port = 0
-        to_port = 0
-        protocol = -1
-        cidr_blocks = ["10.0.0.0/8"]
-    }
-    ingress {
-        from_port = 8080
-        to_port = 8080
-        protocol = "tcp"
-        security_groups = [aws_security_group.kuberlab-sg-elb.id]
-    }
-}
-resource "aws_security_group" "kuberlab-sg-elb" {
-    vpc_id = "${aws_vpc.kuberlab-vpc.id}"
-    ingress {
-        from_port = 80
-        to_port = 80
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }
-}
-
-resource "aws_instance" "kuberlab-jenkins" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.medium"
-  subnet_id = "${aws_subnet.kuberlab-pub-subnet-1.id}"
-  vpc_security_group_ids = ["${aws_security_group.kuberlab-sg-ec2.id}"]
-  key_name = "${aws_key_pair.kuberLab-kp.id}"
-  tags = {
-    Name = "Jenkins Instance"
-  }
-}
-resource "aws_instance" "kuberlab-worker1" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.medium"
-  subnet_id = "${aws_subnet.kuberlab-pub-subnet-1.id}"
-  vpc_security_group_ids = ["${aws_security_group.kuberlab-sg-ec2.id}"]
-  key_name = "${aws_key_pair.kuberLab-kp.id}"
-  tags = {
-    Name = "Worker1"
-  }
-}
-resource "aws_instance" "kuberlab-worker2" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.medium"
-  subnet_id = "${aws_subnet.kuberlab-pub-subnet-1.id}"
-  vpc_security_group_ids = ["${aws_security_group.kuberlab-sg-ec2.id}"]
-  key_name = "${aws_key_pair.kuberLab-kp.id}"
-  tags = {
-    Name = "Worker2"
-  }
 }
