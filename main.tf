@@ -23,7 +23,7 @@ resource "aws_key_pair" "kuberLab-kp" {
   public_key = file("~/.ssh/id_rsa.pub")
 }
 resource "aws_internet_gateway" "kuberlab-igw" {
-  vpc_id = aws_vpc.nimic-vpc.id
+  vpc_id = aws_vpc.kuberlab-vpc.id
 
   tags = {
     Name = "kuberlab"
@@ -117,7 +117,7 @@ resource "aws_security_group" "kuberlab-sg-ec2" {
     ingress {
         from_port = 8080
         to_port = 8080
-        protocol = -1
+        protocol = "tcp"
         security_groups = [aws_security_group.kuberlab-sg-elb.id]
     }
 }
@@ -139,5 +139,25 @@ resource "aws_instance" "kuberlab-jenkins" {
   key_name = "${aws_key_pair.kuberLab-kp.id}"
   tags = {
     Name = "Jenkins Instance"
+  }
+}
+resource "aws_instance" "kuberlab-worker1" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.medium"
+  subnet_id = "${aws_subnet.kuberlab-pub-subnet-1.id}"
+  vpc_security_group_ids = ["${aws_security_group.kuberlab-sg-ec2.id}"]
+  key_name = "${aws_key_pair.kuberLab-kp.id}"
+  tags = {
+    Name = "Worker1"
+  }
+}
+resource "aws_instance" "kuberlab-worker2" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.medium"
+  subnet_id = "${aws_subnet.kuberlab-pub-subnet-1.id}"
+  vpc_security_group_ids = ["${aws_security_group.kuberlab-sg-ec2.id}"]
+  key_name = "${aws_key_pair.kuberLab-kp.id}"
+  tags = {
+    Name = "Worker2"
   }
 }

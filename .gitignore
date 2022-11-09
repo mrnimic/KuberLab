@@ -4,4 +4,4 @@ awskey.pub
 scripts/lab-ssh.sh
 .terraform
 terraform.tfstate*
-terraform.lock.hcl
+.terraform.lock.hcl
