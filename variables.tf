@@ -1,4 +1,4 @@
 variable "ssh-source-ip" {
   type    = string
-  default = "158.176.95.134/32"
+  default = "159.122.110.141/32"
 }
