@@ -1,0 +1,60 @@
+  - name: Set Master hostname
+    hostname:
+      name: lab-master
+  
+  - name: Add Jenkins apt key
+    ansible.builtin.apt_key:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      state: present
+  
+  - name: Add Jenkins repository into sources list
+    ansible.builtin.apt_repository:
+      repo: deb https://pkg.jenkins.io/debian-stable binary/
+      state: present
+
+  - name: Install prerequisite packages for Jenkins
+    ansible.builtin.apt:
+      name:
+        - openjdk-11-jdk
+        - fontconfig
+        - ca-certificates
+        - curl
+        - gnupg-agent
+        - software-properties-common
+      state: present
+      update_cache: yes
+
+  - name: Install Jenkins Service on Master instance
+    ansible.builtin.apt:
+      name: jenkins
+      state: present
+
+  - name: Start service Jenkins, if not started
+    ansible.builtin.service:
+      name: jenkins
+      state: started
+
+  - name: Remove /var/lib/jenkins
+    ansible.builtin.file:
+      path: /var/lib/jenkins
+      state: absent
+
+  - name: Clone Jenkins home dir
+    ansible.builtin.git:
+      repo: https://github.com/mrnimic/jenkins.git
+      dest: /var/lib/jenkins
+      clone: yes
+      update: yes
+
+  - name: Recursively change ownership of Jenkins Home dir
+    ansible.builtin.file:
+      path: /var/lib/jenkins
+      state: directory
+      recurse: yes
+      owner: jenkins
+      group: jenkins
+
+  - name: Restart Jenkins service
+    ansible.builtin.service:
+      name: jenkins
+      state: restarted

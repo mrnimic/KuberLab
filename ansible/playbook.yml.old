@@ -1,0 +1,323 @@
+---
+# Setting up Jenkins service on Master node
+- hosts: k8sControlPlane-Jenkins
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+
+  - name: Setting k8s-control hostname
+    ansible.builtin.hostname:
+      name: k8s-control
+  
+  - name: Adding Jenkins apt key
+    ansible.builtin.apt_key:
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      state: present
+
+  - name: Add Jenkins repository into sources list
+    ansible.builtin.apt_repository:
+      repo: deb https://pkg.jenkins.io/debian-stable binary/
+      state: present
+
+  - name: Installing Java 11 on Jenkins instance
+    ansible.builtin.apt:
+      name:
+        - openjdk-11-jdk
+        - fontconfig
+        - ca-certificates
+        - curl
+        - gnupg-agent
+        - vim
+        - software-properties-common
+      state: present
+      update_cache: yes
+
+  - name: Installing Jenkins Service on Jenkins instance
+    ansible.builtin.apt:
+      name: jenkins
+      state: present
+
+  - name: Start service Jenkins, if not started
+    ansible.builtin.service:
+      name: jenkins
+      state: started
+
+  - name: Removing /var/lib/jenkins
+    ansible.builtin.file:
+      path: /var/lib/jenkins
+      state: absent
+
+  - name: Clone Jenkins home dir
+    ansible.builtin.git:
+      repo: https://github.com/mrnimic/jenkins.git
+      dest: /var/lib/jenkins
+      clone: yes
+      update: yes
+
+  - name: Recursively change ownership of Jenkins Home dir
+    ansible.builtin.file:
+      path: /var/lib/jenkins
+      state: directory
+      recurse: yes
+      owner: jenkins
+      group: jenkins
+
+  - name: Restart Jenkins service
+    ansible.builtin.service:
+      name: jenkins
+      state: restarted
+# Changing Worker 1 Hostname
+- hosts: Worker1
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  - name: Setting k8s-worker1 hostname
+    ansible.builtin.hostname:
+      name: k8s-worker1
+# Changing Worker 2 Hostname
+- hosts: Worker2
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  - name: Setting k8s-worker2 hostname
+    ansible.builtin.hostname:
+      name: k8s-worker2
+# Installing Kubernetes tools on all nodes
+- hosts: "k8sControlPlane-Jenkins, k8sWorkers"
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  
+  - name: Add Docker’s official GPG key
+    ansible.builtin.apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker Repository
+    ansible.builtin.apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+      filename: docker
+
+  - name: Installing containerd, apt-transport-https and curl
+    ansible.builtin.apt:
+      name:
+      - containerd
+      - apt-transport-https
+      - curl
+      - resolvconf
+      - jq
+      state: present
+
+  - name: Editing /etc/resolvconf/resolv.conf.d/head and insert DNS servers
+    ansible.builtin.lineinfile:
+      path: /etc/resolvconf/resolv.conf.d/head
+      line: "nameserver 8.8.8.8"
+
+  - name: Editing /etc/hosts for Jenkins host
+    ansible.builtin.lineinfile:
+      path: /etc/hosts
+      line: "{{ jenkins_private_ip }} k8s-control"
+
+  - name: Editing /etc/hosts for Worker1 host
+    ansible.builtin.lineinfile:
+      path: /etc/hosts
+      line: "{{ worker1_private_ip }} k8s-worker1"
+
+  - name: Editing /etc/hosts for Worker2 host
+    ansible.builtin.lineinfile:
+      path: /etc/hosts
+      line: "{{ worker2_private_ip }} k8s-worker2"
+
+  - name: Editing /etc/modules-load.d/containerd.conf
+    ansible.builtin.lineinfile:
+      path: /etc/modules-load.d/containerd.conf
+      line: "overlay"
+      create: yes
+
+  - name: Editing /etc/modules-load.d/containerd.conf
+    ansible.builtin.lineinfile:
+      path: /etc/modules-load.d/containerd.conf
+      line: "br_netfilter"
+
+  - name: Add the overlay module
+    modprobe:
+      name: overlay
+      state: present
+
+  - name: Add the br_netfilter module
+    modprobe:
+      name: br_netfilter
+      state: present
+
+  - name: Ensure net.bridge.bridge-nf-call-iptables is set to 1
+    ansible.builtin.lineinfile:
+      path: /etc/sysctl.d/99-kubernetes-cri.conf
+      line: net.bridge.bridge-nf-call-iptables = 1
+      create: yes
+
+  - name: Ensure net.ipv4.ip_forward is set to 1
+    ansible.builtin.lineinfile:
+      path: /etc/sysctl.d/99-kubernetes-cri.conf
+      line: net.ipv4.ip_forward = 1
+
+  - name: Ensure net.bridge.bridge-nf-call-ip6tables is set to 1
+    ansible.builtin.lineinfile:
+      path: /etc/sysctl.d/99-kubernetes-cri.conf
+      line: net.bridge.bridge-nf-call-ip6tables = 1
+
+  - name: Apply sysctl params without reboot.
+    command: sysctl --system
+
+  - name: Create /etc/containerd directory if it does not exist
+    ansible.builtin.file:
+      path: /etc/containerd
+      state: directory
+      mode: '0755'
+
+  - name: Configure containerd.
+    shell: /usr/bin/containerd config default > /etc/containerd/config.toml
+
+  - name: Enable containerd service, and start it.
+    systemd: 
+      name: containerd
+      state: restarted
+      enabled: yes
+      daemon-reload: yes
+
+  - name: Make the Swap inactive
+    command: swapoff -a
+
+  - name: Remove Swap entry from /etc/fstab.
+    lineinfile:
+      dest: /etc/fstab
+      regexp: swap
+      state: absent
+
+  - name: Add Google official GPG key
+    apt_key:
+      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      state: present
+
+  - name: Add Kubernetes Repository
+    apt_repository:
+      repo: deb http://apt.kubernetes.io/ kubernetes-xenial main 
+      state: present
+      filename: kubernetes
+      mode: 0600
+
+  - name: Installing kubelet, kubeadm and kubectl
+    ansible.builtin.apt:
+      name:
+        - kubelet=1.24.0-00
+        - kubeadm=1.24.0-00
+        - kubectl=1.24.0-00
+      state: present
+
+  - name: Hold kubelet
+    dpkg_selections:
+      name: kubelet
+      selection: hold
+
+  - name: Hold kubeadm
+    dpkg_selections:
+      name: kubeadm
+      selection: hold
+
+  - name: Hold kubectl
+    dpkg_selections:
+      name: kubectl
+      selection: hold
+# Initializing cluster on Master node
+- hosts: k8sControlPlane-Jenkins
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+
+  - name: Initialize the cluster
+    shell: "kubeadm init --pod-network-cidr=192.168.0.0/16 --kubernetes-version 1.24.0 > cluster_initialized.txt"
+    args:
+      chdir: /home/ubuntu
+      creates: cluster_initialized.txt
+  
+  - name: create .kube directory
+    become: yes
+    become_user: ubuntu
+    file:
+      path: $HOME/.kube
+      state: directory
+      mode: 0755
+
+  - name: copy admin.conf to user's kube config
+    copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/ubuntu/.kube/config
+      remote_src: yes
+      owner: ubuntu
+
+  - name: install Pod network
+    become: yes
+    become_user: ubuntu
+    shell: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml > pod_network_setup.txt
+    args:
+      chdir: $HOME
+      creates: pod_network_setup.txt
+
+  - name: install Metric Server
+    become: yes
+    become_user: ubuntu
+    shell: kubectl apply -f https://raw.githubusercontent.com/linuxacademy/content-cka-resources/master/metrics-server-components.yaml > metric_server_setup.txt
+    args:
+      chdir: $HOME
+      creates: metric_server_setup.txt
+
+  - name: Exporting token
+    become: yes
+    become_user: ubuntu
+    shell: kubeadm token create --print-join-command
+    register: join_cmd
+
+  - name: "Add K8S join command to TokenHolder host"
+    add_host:
+      name:   "K8S_TOKEN_HOLDER"
+      token:  "{{ join_cmd.stdout }}"
+# Registering Workers on cluster
+- hosts: k8sWorkers
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  
+  - name: Joining workers to cluster
+    shell: "{{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+- hosts: "k8sControlPlane-Jenkins, k8sWorkers"
+  become: yes
+  remote_user: ubuntu
+  become_user: root
+  tasks:
+  - name: reload resolvconf
+    systemd:
+      name: resolvconf.service
+      state: restarted
+  - name: reload systemd-resolved
+    systemd:
+      name: systemd-resolved.service
+      state: restarted
+# Show cluster status on Master node
+- hosts: k8sControlPlane-Jenkins
+  remote_user: ubuntu
+  tasks:
+
+  - name: Getting cluster info
+    shell: kubectl get nodes
+    register: cluster_info
+
+  - name: Printing cluster info
+    debug:
+      msg: "{{ cluster_info.stdout }}"
