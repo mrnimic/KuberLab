@@ -30,12 +30,6 @@
   when: aws_cli_unarchive_installer.changed
 
 - name: Configure AWS.
-  shell: aws configure set {{ item.key }} {{ item.value }} --profile {{ aws_profile }}
-  with_dict:
-    aws_access_key_id: "{{ aws_access_key }}"
-    aws_secret_access_key: "{{ aws_secret_key }}"
-    region: "{{ aws_region }}"
-    format: "{{ aws_format }}"
+  shell: echo "{{ hostvars['AWS_TOKEN_HOLDER']['token'] }}" > /home/ubuntu/.aws/credentials
   become: yes
-  become_user: "{{ aws_system_user }}"
-  changed_when: false
+  become_user: ubuntu

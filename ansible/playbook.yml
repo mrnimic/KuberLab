@@ -1,4 +1,9 @@
 ---
+- hosts: localhost
+  connection: local 
+  roles:
+    - role: './roles/localhost'
+
 - hosts: masters
   remote_user: ubuntu
   roles:
