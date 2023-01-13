@@ -1,7 +1,6 @@
 ansible/hosts.cfg
 awskey
 awskey.pub
-scripts/lab-ssh.sh
 .terraform
 terraform.tfstate*
 .terraform.lock.hcl
