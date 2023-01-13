@@ -1,7 +1,0 @@
----
-aws_system_user: ubuntu
-aws_profile: default
-aws_access_key: AKIASYQYOHQ4TOZJML4W
-aws_secret_key: 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
-aws_region: us-east-1
-aws_format: json
