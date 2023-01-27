@@ -7,3 +7,8 @@
   add_host:
     name:   "AWS_TOKEN_HOLDER"
     token:  "{{ output.stdout }}"
+
+- name: Install collection kubernetes.core
+  community.general.ansible_galaxy_install:
+    type: collection
+    name: kubernetes.core

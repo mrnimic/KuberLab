@@ -100,3 +100,52 @@
   shell: /home/ubuntu/get_helm.sh
   when: helm_download.changed
 
+
+
+######## Deploy istio/base and istio/istiod using HELM
+
+- name: Add istio repo
+  kubernetes.core.helm_repository:
+    name: istio
+    repo_url: "https://istio-release.storage.googleapis.com/charts"
+
+- name: Deploy istio/base
+  kubernetes.core.helm:
+    name: istio-base
+    chart_ref: istio/base
+    release_namespace: istio-system
+    create_namespace: true
+  register: istiobase_deploy
+
+- name: Deploy istiod
+  kubernetes.core.helm:
+    name: istiod
+    chart_ref: istio/istiod
+    release_namespace: istio-system
+    wait: true
+
+
+######## Deploy Seldon Core
+
+- name: Create seldon-system namespace
+  shell: kubectl create namespace seldon-system
+  when: istiobase_deploy.changed
+
+- name: Deploy seldon-core
+  shell: helm install seldon-core seldon-core-operator --repo https://storage.googleapis.com/seldon-charts --set usageMetrics.enabled=true --namespace seldon-system --set istio.enabled=true
+  when: istiobase_deploy.changed
+
+######### Deployment Files
+
+- name: Copy Project into Bastion
+  ansible.builtin.copy:
+    src: /home/ubuntu/Nima/Projects/onsite-hossein.zip
+    dest: /home/ubuntu/onsite-hossein.zip
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+  register: copy_project
+
+- name: Unarchive Project
+  unarchive: src=/home/ubuntu/onsite-hossein.zip dest=/home/ubuntu/ copy=no
+  when: copy_project.changed
