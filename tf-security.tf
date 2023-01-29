@@ -12,9 +12,9 @@ resource "aws_security_group" "kuberlab-sg-ec2" {
         cidr_blocks = ["0.0.0.0/0"]
     }
     ingress {
-        from_port = 22
-        to_port = 22
-        protocol = "tcp"
+        from_port = 0
+        to_port = 0
+        protocol = -1
         cidr_blocks = [var.ssh-source-ip]
     }
     ingress {

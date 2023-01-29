@@ -1,6 +1,6 @@
 variable "ssh-source-ip" {
   type    = string
-  default = "159.122.110.135/32"
+  default = "159.122.110.133/32"
 }
 
 variable "region" {
