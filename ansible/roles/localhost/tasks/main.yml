@@ -1,5 +1,5 @@
 - name: "Fetch AWS Credentials."
-  shell: "cat /home/ubuntu/.aws/credentials"
+  shell: "cat /Users/nima/.aws/credentials"
   register: "output"
 
 

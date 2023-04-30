@@ -16,7 +16,7 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "controlPlane" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.medium"
-  subnet_id = "${aws_subnet.kuberlab-pub-subnet-1.id}"
+  subnet_id = "${module.vpc.public_subnets}"
   vpc_security_group_ids = ["${aws_security_group.kuberlab-sg-ec2.id}"]
   key_name = "${aws_key_pair.kuberLab-kp.id}"
   tags = {

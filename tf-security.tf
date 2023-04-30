@@ -3,7 +3,7 @@ resource "aws_key_pair" "kuberLab-kp" {
   public_key = file("~/.ssh/id_rsa.pub")
 }
 resource "aws_security_group" "kuberlab-sg-ec2" {
-    vpc_id = "${aws_vpc.kuberlab-vpc.id}"
+    vpc_id = "${module.vpc.vpc_id}"
     
     egress {
         from_port = 0
