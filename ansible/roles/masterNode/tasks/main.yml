@@ -28,6 +28,7 @@
       - python3
       - unzip
       - kubectl
+      - docker.io
     state: present
     update_cache: yes
 
