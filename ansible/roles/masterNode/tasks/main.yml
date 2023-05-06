@@ -2,7 +2,7 @@
   become: yes
   become_user: root
   hostname:
-    name: control-plane
+    name: Bastion
 
 - name: Add Google official GPG key
   become: yes
