@@ -62,8 +62,51 @@
 - name: Update kubeconfig
   shell: aws eks update-kubeconfig --region us-east-1 --name {{ cluster_name }}
 
+######## Run App
+- name: add github ssh key
+  copy: >
+    src=/Users/nima/.ssh/id_rsa.github
+    dest=/home/ubuntu/.ssh/id_rsa.github
+    owner=ubuntu
+    group=ubuntu
+    mode=0600
 
+- name: Create ssh config file
+  copy:
+    dest: "/home/ubuntu/.ssh/config"
+    content: |
+      Host github.com
+          Hostname github.com
+          IdentityFile /home/ubuntu/.ssh/id_rsa.github
+          IdentitiesOnly yes
 
+- name: Clone app Project
+  ansible.builtin.git:
+    repo: git@github.com:mrnimic/sample-app.git
+    dest: /home/ubuntu/sample-app
+    version: master
+    key_file: /home/ubuntu/.ssh/id_rsa.github
+    accept_hostkey: true
+  register: clone_app_repo
+
+- name: Create Dockerhub Secret for K8s
+  when: clone_app_repo.changed
+  register: 
+  shell: kubectl create secret docker-registry dockerhub-secret --docker-server=docker.io --docker-username=mrnimic --docker-password={{ extra_var_dockerhub_token }} --docker-email=n.amiri69@gmail.com
+
+### Update App Image has been removed #####
+
+- name: Deploy DB Secret
+  shell: kubectl apply -f /home/ubuntu/sample-app/K8s/secret.yml
+  register: deploy_db_secret
+
+- name: Deploy DB
+  when: deploy_db_secret.changed
+  shell: kubectl apply -f /home/ubuntu/sample-app/K8s/db-deployment.yml
+
+- name: Deploy App
+  when: deploy_db_secret.changed
+  shell: kubectl apply -f /home/ubuntu/sample-app/K8s/app-deployment.yml
 ######## EKSCTL
 
 #- name: Download eksctl tarball
