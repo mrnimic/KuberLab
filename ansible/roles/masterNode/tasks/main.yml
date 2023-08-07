@@ -56,6 +56,11 @@
 - name: Configure AWS.
   shell: echo "{{ hostvars['AWS_TOKEN_HOLDER']['token'] }}" > /home/ubuntu/.aws/credentials
 
+- name: aws-cli autocomplete
+  ansible.builtin.lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: complete -C '/usr/local/bin/aws_completer' aws
+
 
 ######## Update kubeconfig
 - name: Update kubeconfig
