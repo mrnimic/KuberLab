@@ -72,34 +72,6 @@
     path: /home/ubuntu/.bashrc
     line: alias k='kubectl'
 
-
-######## EKSCTL
-
-#- name: Download eksctl tarball
-#  get_url: url=https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz dest=/tmp
-#  register: eksctl_download
-
-#- name: Unarchive eksctl installer
-#  unarchive: src=/tmp/eksctl_Linux_amd64.tar.gz dest=/tmp copy=no
-#  register: eksctl_unarchive
-#  when: eksctl_download.changed
-
-#- name: Move eksctl binary to bin dir
-#  shell: mv /tmp/eksctl /usr/local/bin
-#  when: eksctl_unarchive.changed
-#  become: yes
-#  become_user: root
-
-#- name: eksctl completion
-#  ansible.builtin.lineinfile:
-#    path: /home/ubuntu/.bashrc
-#    line: . <(eksctl completion bash)
-
-#- name: Create K8S Cluster
-#  shell : eksctl create cluster --version 1.24 --region us-east-1 --node-type t3.medium --nodes 3 --nodes-min 1 --nodes-max 4 --name Kuberlab
-#  when: eksctl_download.changed
-
-
 ######## HELM
 
 - name: Download Helm
@@ -116,3 +88,10 @@
   shell: /home/ubuntu/get_helm.sh
   when: helm_download.changed
 
+######## Clone kiamol repo
+
+- name: clone kiamol
+  ansible.builtin.git:
+    repo: 'https://github.com/sixeyed/kiamol.git'
+    dest: /home/ubuntu
+    version: master
