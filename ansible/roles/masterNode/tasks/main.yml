@@ -90,8 +90,13 @@
 
 ######## Clone kiamol repo
 
+- name: create kiamol directory
+  ansible.builtin.file:
+    path: /home/ubuntu/kiamol
+    state: directory
+
 - name: clone kiamol
   ansible.builtin.git:
     repo: 'https://github.com/sixeyed/kiamol.git'
-    dest: /home/ubuntu
+    dest: /home/ubuntu/kiamol
     version: master
