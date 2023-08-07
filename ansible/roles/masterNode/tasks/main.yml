@@ -67,6 +67,11 @@
   shell: aws eks update-kubeconfig --region us-east-1 --name {{ cluster_name }}
 
 
+- name: add alias k for kubectl
+  ansible.builtin.lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: alias k='kubectl'
+
 
 ######## EKSCTL
 
