@@ -102,17 +102,17 @@
 
 ######## HELM
 
-#- name: Download Helm
-#  get_url: url=https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 dest=/home/ubuntu/get_helm.sh
-#  register: helm_download
+- name: Download Helm
+  get_url: url=https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 dest=/home/ubuntu/get_helm.sh
+  register: helm_download
 
-#- name: Make the script executable
-#  when: helm_download.changed
-#  file:
-#    path: /home/ubuntu/get_helm.sh
-#    mode: '0700'
+- name: Make the script executable
+  when: helm_download.changed
+  file:
+    path: /home/ubuntu/get_helm.sh
+    mode: '0700'
 
-#- name: Install Helm
-#  shell: /home/ubuntu/get_helm.sh
-#  when: helm_download.changed
+- name: Install Helm
+  shell: /home/ubuntu/get_helm.sh
+  when: helm_download.changed
 
