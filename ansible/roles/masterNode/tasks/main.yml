@@ -59,7 +59,7 @@
 - name: aws-cli autocomplete
   ansible.builtin.lineinfile:
     path: /home/ubuntu/.bashrc
-    line: complete -C '/usr/local/bin/aws_completer' aws
+    line: complete -C '/usr/bin/aws_completer' aws
 
 
 ######## Update kubeconfig
