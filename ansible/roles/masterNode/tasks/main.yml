@@ -72,6 +72,14 @@
     path: /home/ubuntu/.bashrc
     line: alias k='kubectl'
 
+- name: kubectl autocomplete script
+  shell: kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl
+
+- name: autocompletion for k
+  ansible.builtin.lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: complete -o default -F __start_kubectl k
+
 ######## HELM
 
 - name: Download Helm
@@ -87,6 +95,19 @@
 - name: Install Helm
   shell: /home/ubuntu/get_helm.sh
   when: helm_download.changed
+
+- name: add alias h for helm
+  ansible.builtin.lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: alias h='helm'
+
+- name: helm autocomplete script
+  shell: helm completion bash | sudo tee /etc/bash_completion.d/helm
+
+- name: autocompletion for h
+  ansible.builtin.lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: complete -o default -F __start_helm h
 
 ######## Clone kiamol repo
 
