@@ -73,46 +73,69 @@
     line: alias k='kubectl'
 
 
-######## EKSCTL
+######### Impersonation
+- name: copy my private ssh key
+  ansible.builtin.copy:
+    src: /Users/nima/.ssh/id_rsa
+    dest: /home/ubuntu/.ssh/id_rsa
+    owner: ubuntu
+    group: ubuntu
+    mode: '0600'
 
-#- name: Download eksctl tarball
-#  get_url: url=https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz dest=/tmp
-#  register: eksctl_download
+- name: copy my public ssh key
+  ansible.builtin.copy:
+    src: /Users/nima/.ssh/id_rsa.pub
+    dest: /home/ubuntu/.ssh/id_rsa.pub
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
 
-#- name: Unarchive eksctl installer
-#  unarchive: src=/tmp/eksctl_Linux_amd64.tar.gz dest=/tmp copy=no
-#  register: eksctl_unarchive
-#  when: eksctl_download.changed
+######### Clone Projects
+- name: clone backend
+  ansible.builtin.git:
+    repo: 'git@github.com:mrnimic/trb-ruby.git'
+    dest: /home/ubuntu/repositories/trb-ruby
+    version: release/s2.0.24
+    accept_hostkey: true
 
-#- name: Move eksctl binary to bin dir
-#  shell: mv /tmp/eksctl /usr/local/bin
-#  when: eksctl_unarchive.changed
-#  become: yes
-#  become_user: root
+- name: clone unifier
+  ansible.builtin.git:
+    repo: 'git@github.com:mrnimic/unifier-ruby.git'
+    dest: /home/ubuntu/repositories/unifier-ruby
+    version: release/s1.0.58
+    accept_hostkey: true
 
-#- name: eksctl completion
-#  ansible.builtin.lineinfile:
-#    path: /home/ubuntu/.bashrc
-#    line: . <(eksctl completion bash)
+- name: clone triage
+  ansible.builtin.git:
+    repo: 'git@github.com:mrnimic/trb-triage-react.git'
+    dest: /home/ubuntu/repositories/trb-triage-react
+    version: release/s3.0.18
+    accept_hostkey: true
 
-#- name: Create K8S Cluster
-#  shell : eksctl create cluster --version 1.24 --region us-east-1 --node-type t3.medium --nodes 3 --nodes-min 1 --nodes-max 4 --name Kuberlab
-#  when: eksctl_download.changed
+- name: clone hr
+  ansible.builtin.git:
+    repo: 'git@github.com:mrnimic/trb-hr-admin-react.git'
+    dest: /home/ubuntu/repositories/trb-hr-admin-react
+    version: release/s1.0.44
+    accept_hostkey: true
 
+- name: clone questionnaire
+  ansible.builtin.git:
+    repo: 'git@github.com:mrnimic/trb-questionnaire-react.git'
+    dest: /home/ubuntu/repositories/trb-questionnaire-react
+    version: release/s1.0.24
+    accept_hostkey: true
 
-######## HELM
+- name: clone webapp
+  ansible.builtin.git:
+    repo: 'git@github.com:mrnimic/trb-webapp-react.git'
+    dest: /home/ubuntu/repositories/trb-webapp-react
+    version: release/s1.0.136
+    accept_hostkey: true
 
-#- name: Download Helm
-#  get_url: url=https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 dest=/home/ubuntu/get_helm.sh
-#  register: helm_download
-
-#- name: Make the script executable
-#  when: helm_download.changed
-#  file:
-#    path: /home/ubuntu/get_helm.sh
-#    mode: '0700'
-
-#- name: Install Helm
-#  shell: /home/ubuntu/get_helm.sh
-#  when: helm_download.changed
-
+- name: clone enterprise
+  ansible.builtin.git:
+    repo: 'git@github.com:mrnimic/trb-webapp-enterprise-react.git'
+    dest: /home/ubuntu/repositories/trb-webapp-enterprise-react
+    version: release/s1.0.61
+    accept_hostkey: true
