@@ -2,10 +2,15 @@
 
 #HOMEDIR=$(echo $HOME)
 
-echo Please enter AWS Access Key ID:
-read ACCESSKEYID
-echo Please enter AWS Secret Access Key:
-read SECRETACCESSKEY
+# echo Please enter AWS Access Key ID:
+# read ACCESSKEYID
+read -s -p "Please enter AWS Access Key ID: " ACCESSKEYID
+
+# echo Please enter AWS Secret Access Key:
+# read SECRETACCESSKEY
+echo "\n"
+read -s -p "Please enter AWS Secret Access Key: " SECRETACCESSKEY
+
 aws configure set aws_access_key_id $ACCESSKEYID
 aws configure set aws_secret_access_key $SECRETACCESSKEY
 
