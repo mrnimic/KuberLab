@@ -16,7 +16,6 @@ aws configure set aws_secret_access_key $SECRETACCESSKEY
 
 cd ./Terraform/
 rm -f terraform.tfstate
-export TF_VAR_alb-source-ip=$(curl icanhazip.com)"/32"
 terraform apply -auto-approve
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --vault-password-file ../ansible/vault-pass.txt -i ../ansible/hosts.cfg ../ansible/playbook.yml
 

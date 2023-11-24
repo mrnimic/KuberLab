@@ -3,10 +3,6 @@ variable "ssh-source-ip" {
   default = "0.0.0.0/0"
 }
 
-variable "alb-source-ip" {
-  type    = string
-}
-
 variable "region" {
   description = "AWS region"
   type        = string
