@@ -1,4 +1,5 @@
 ansible/hosts.cfg
+ansible/vault-pass.txt
 awskey
 awskey.pub
 .terraform
