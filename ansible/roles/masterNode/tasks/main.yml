@@ -26,13 +26,24 @@
   ansible.builtin.apt:
     name:
       - python3
+      - python3-pip
       - unzip
       - kubectl
+      - docker.io
     state: present
     update_cache: yes
 
-######## AWSCLI
+- name: Add ubuntu user to docker group
+  become: yes
+  become_user: root
+  ansible.builtin.user:
+    name: ubuntu
+    groups: docker
+    append: yes
+  notify: restart_shell
 
+
+######## AWSCLI
 - name: Download the awscli bundle.
   get_url: url=https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip dest=/tmp/awscliv2.zip
   register: aws_cli_download_bundle
@@ -66,7 +77,6 @@
 - name: Update kubeconfig
   shell: aws eks update-kubeconfig --region us-east-1 --name {{ cluster_name }}
 
-
 - name: add alias k for kubectl
   ansible.builtin.lineinfile:
     path: /home/ubuntu/.bashrc
@@ -89,6 +99,7 @@
     owner: ubuntu
     group: ubuntu
     mode: '0644'
+
 
 ######### Clone Projects
 - name: clone backend
@@ -139,3 +150,186 @@
     dest: /home/ubuntu/repositories/trb-webapp-enterprise-react
     version: release/s1.0.61
     accept_hostkey: true
+
+
+######### Docker login
+- name: Install botocore
+  become: yes
+  become_user: root
+  ansible.builtin.pip:
+    name: botocore
+    extra_args: --target /usr/lib/python3/dist-packages
+
+- name: Install boto3
+  ansible.builtin.pip:
+    name: boto3
+
+- name: Get instance profile info
+  amazon.aws.aws_caller_info:
+  register: aws_info
+
+- set_fact:
+    ecr_registry_url: "{{ aws_info.account }}.dkr.ecr.us-east-1.amazonaws.com"
+
+- name: Docker login
+  shell: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin {{ ecr_registry_url }}
+
+
+######### Build n Push
+- name: Build Backend
+  community.docker.docker_image:
+    build:
+      path: /home/ubuntu/repositories/trb-ruby
+    name: '{{ backend_ecr_url }}'
+    tag: s2.0.24
+    push: true
+    source: build
+
+- name: Build HR
+  community.docker.docker_image:
+    build:
+      path: /home/ubuntu/repositories/trb-hr-admin-react
+      args:
+        API_URL: https://trbapp.mrnimic.com/api/v1
+        GOOGLE_SITE_KEY: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          34313830363136656333336661373139376565643763666637353930346561356564633235663934
+          3932333732303662383463343465656363343466643632620a616361633731393065306535303836
+          63353563356135346139633533616338353566666666316662336639333465623764626436363431
+          6661656262663166340a303764633232386265343031336665306231306533303432336362326331
+          63656531613165613035346566366334613066646132626338316334646635636261306539396666
+          3831363163663365313766643261643838303966326234363133
+    name: '{{ hr_ecr_url }}'
+    tag: s1.0.44
+    push: true
+    source: build
+
+- name: Build Questionnaire
+  community.docker.docker_image:
+    build:
+      path: /home/ubuntu/repositories/trb-questionnaire-react
+      args:
+        API_URL: https://trbapp.mrnimic.com/api/v1
+    name: '{{ questionnaire_ecr_url }}'
+    tag: s1.0.24
+    push: true
+    source: build
+
+- name: Build Triage
+  community.docker.docker_image:
+    build:
+      path: /home/ubuntu/repositories/trb-triage-react
+      args:
+        API_PROXY: https://trbapp.mrnimic.com/api/v1
+        IMAGE_URL: trbapp.mrnimic.com
+        NEXT_PUBLIC_WS_URL: wss://trbapp.mrnimic.com
+        GOOGLE_API_KEY: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          31336164613231366334343337386139646332613633373863323464376333363232653936363037
+          6138323436353164666537353764633635323539383136300a646433373437633035383263383161
+          39313864303234316565393939343834633862383262383861373366326232353237363038343365
+          3063356531303232380a303533373233356366376438343561373932393137303836393630313739
+          37313032393934323139356536643437386635336639343837633162636538663432333061646638
+          6637313638313137656333376133626161613239333132636165
+        NEXTAUTH_URL: https://stagetriage.mrnimic.com
+        NEXT_PUBLIC_GOOGLE_SITE_KEY: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          34313830363136656333336661373139376565643763666637353930346561356564633235663934
+          3932333732303662383463343465656363343466643632620a616361633731393065306535303836
+          63353563356135346139633533616338353566666666316662336639333465623764626436363431
+          6661656262663166340a303764633232386265343031336665306231306533303432336362326331
+          63656531613165613035346566366334613066646132626338316334646635636261306539396666
+          3831363163663365313766643261643838303966326234363133
+        NEXT_PUBLIC_GOOGLE_API_KEY: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          31336164613231366334343337386139646332613633373863323464376333363232653936363037
+          6138323436353164666537353764633635323539383136300a646433373437633035383263383161
+          39313864303234316565393939343834633862383262383861373366326232353237363038343365
+          3063356531303232380a303533373233356366376438343561373932393137303836393630313739
+          37313032393934323139356536643437386635336639343837633162636538663432333061646638
+          6637313638313137656333376133626161613239333132636165
+    name: '{{ triage_ecr_url }}'
+    tag: s3.0.18
+    push: true
+    source: build
+
+- name: Build Enterprise
+  community.docker.docker_image:
+    build:
+      path: /home/ubuntu/repositories/trb-webapp-enterprise-react
+      args:
+        API_URL: https://trbapp.mrnimic.com/api/v1
+        WS_URL: wss://trbapp.mrnimic.com
+        #API_NEWS_URL: https://trbnews.mrnimic.com/api/v1
+        FILE_URL: https://trbapp.mrnimic.com
+        ONE_SIGNAL_ID: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          63343939323138623136616138663832306462373562666365356536346466333532663661386665
+          6361646534306261323362393130656163623530386430640a393362343765353430613738643634
+          37623936303366346436373263643333376264373462356465313062663030363130643734396433
+          3535343461393062360a626165373136643661373435323265363362653639376637393837633035
+          34373061336465313062326130356363393134386338343737376561623266326265333661373064
+          3937643861333634396133303537666564383331623866366434
+        GOOGLE_SITE_KEY: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          34313830363136656333336661373139376565643763666637353930346561356564633235663934
+          3932333732303662383463343465656363343466643632620a616361633731393065306535303836
+          63353563356135346139633533616338353566666666316662336639333465623764626436363431
+          6661656262663166340a303764633232386265343031336665306231306533303432336362326331
+          63656531613165613035346566366334613066646132626338316334646635636261306539396666
+          3831363163663365313766643261643838303966326234363133
+    name: '{{ enterprise_ecr_url }}'
+    tag: s1.0.61
+    push: true
+    source: build
+
+- name: Build Webapp
+  community.docker.docker_image:
+    build:
+      path: /home/ubuntu/repositories/trb-webapp-react
+      args:
+        API_URL: https://trbapp.mrnimic.com/api/v1
+        WS_URL: wss://trbapp.mrnimic.com
+        #API_NEWS_URL=https://trbnews2.mrnimic.com/api/v1
+        FILE_URL: https://trbapp.mrnimic.com
+        ONE_SIGNAL_ID: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          63343939323138623136616138663832306462373562666365356536346466333532663661386665
+          6361646534306261323362393130656163623530386430640a393362343765353430613738643634
+          37623936303366346436373263643333376264373462356465313062663030363130643734396433
+          3535343461393062360a626165373136643661373435323265363362653639376637393837633035
+          34373061336465313062326130356363393134386338343737376561623266326265333661373064
+          3937643861333634396133303537666564383331623866366434
+        GOOGLE_SITE_KEY: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          34313830363136656333336661373139376565643763666637353930346561356564633235663934
+          3932333732303662383463343465656363343466643632620a616361633731393065306535303836
+          63353563356135346139633533616338353566666666316662336639333465623764626436363431
+          6661656262663166340a303764633232386265343031336665306231306533303432336362326331
+          63656531613165613035346566366334613066646132626338316334646635636261306539396666
+          3831363163663365313766643261643838303966326234363133
+    name: '{{ webapp_ecr_url }}'
+    tag: s1.0.136
+    push: true
+    source: build
+
+- name: Build Unifier
+  community.docker.docker_image:
+    build:
+      path: /home/ubuntu/repositories/unifier-ruby
+      dockerfile: Dockerfile-main
+    name: '{{ unifier_ecr_url }}'
+    tag: s1.0.58
+    push: true
+    source: build
+
+
+
+# - name: Create a example.net CNAME record to example.com
+#   community.general.cloudflare_dns:
+#     zone: example.net
+#     type: CNAME
+#     value: example.com
+#     account_email: test@example.com
+#     account_api_key: dummyapitoken
+#     state: present
