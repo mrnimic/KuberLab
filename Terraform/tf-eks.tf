@@ -27,6 +27,7 @@ module "eks" {
       min_size     = 1
       max_size     = 3
       desired_size = 2
+      iam_role_name = aws_iam_role.eks_managed_node_group.name
     }
 
     two = {
@@ -37,6 +38,7 @@ module "eks" {
       min_size     = 1
       max_size     = 2
       desired_size = 1
+      iam_role_name = aws_iam_role.eks_managed_node_group.name
     }
   }
 }
