@@ -1,5 +1,5 @@
-resource "aws_ecr_repository" "trb-ruby" {
-  name                 = "trb-ruby"
+resource "aws_ecr_repository" "bsb-react" {
+  name                 = "bsb-react"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -7,8 +7,8 @@ resource "aws_ecr_repository" "trb-ruby" {
   }
 }
 
-resource "aws_ecr_repository" "trb-unifier" {
-  name                 = "trb-unifier"
+resource "aws_ecr_repository" "bsb-backend" {
+  name                 = "bsb-backend"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -16,47 +16,3 @@ resource "aws_ecr_repository" "trb-unifier" {
   }
 }
 
-resource "aws_ecr_repository" "trb-hr" {
-  name                 = "trb-hr"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "trb-questionnaire" {
-  name                 = "trb-questionnaire"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "trb-triage" {
-  name                 = "trb-triage"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "trb-webapp" {
-  name                 = "trb-webapp"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "trb-enterprise" {
-  name                 = "trb-enterprise"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
