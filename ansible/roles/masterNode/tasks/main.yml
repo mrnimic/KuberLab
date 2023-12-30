@@ -105,69 +105,69 @@
     mode: '0644'
 
 
-######### Clone kubernetes manifests
-- name: Clone Manifests
-  ansible.builtin.git:
-    repo: 'git@github.com:mrnimic/bsb-k8s.git'
-    dest: /home/ubuntu/repositories/bsb-k8s
-    version: main
-    accept_hostkey: true
+# ######### Clone kubernetes manifests
+# - name: Clone Manifests
+#   ansible.builtin.git:
+#     repo: 'git@github.com:mrnimic/bsb-k8s.git'
+#     dest: /home/ubuntu/repositories/bsb-k8s
+#     version: main
+#     accept_hostkey: true
 
 
-######### Create Kubernetes Resources
-- name: Create Namespace
-  kubernetes.core.k8s:
-    state: present
-    src: /home/ubuntu/repositories/bsb-k8s/ns.yaml
-
-- name: Create Dockerhub Secret
-  kubernetes.core.k8s:
-    state: present
-    src: /home/ubuntu/repositories/bsb-k8s/app/dockerhub-secret.yaml
-
-- name: Create Environment Variables ConfigMap
-  kubernetes.core.k8s:
-    state: present
-    src: /home/ubuntu/repositories/bsb-k8s/app/app-env.yaml
-
-- name: Create Deployment
-  kubernetes.core.k8s:
-    state: present
-    src: /home/ubuntu/repositories/bsb-k8s/app/app-deployment.yaml
-
-- name: Create Service
-  kubernetes.core.k8s:
-    state: present
-    src: /home/ubuntu/repositories/bsb-k8s/app/app-svc.yaml
-
-- name: Install Ingress Controller manifest to the cluster.
-  shell: kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller/crds?ref=master"
-
-- name: Create Ingress
-  kubernetes.core.k8s:
-    state: present
-    src: /home/ubuntu/repositories/bsb-k8s/app/app-ingress.yaml
-
-######### Build n Push
-# - name: Build Frontend
-#   community.docker.docker_image:
-#     build:
-#       path: /home/ubuntu/repositories/bsb-react
-#       args:
-#         API_PROXY: https://api-bsb.mrnimic.com
-#         SBS_ORIGIN_URL: https://bsb.mrnimic.com
-#     name: '{{ frontend_ecr_url }}'
-#     tag: v1.0.4
-#     push: true
-#     source: build
-
-
-
-# - name: Create a example.net CNAME record to example.com
-#   community.general.cloudflare_dns:
-#     zone: example.net
-#     type: CNAME
-#     value: example.com
-#     account_email: test@example.com
-#     account_api_key: dummyapitoken
+# ######### Create Kubernetes Resources
+# - name: Create Namespace
+#   kubernetes.core.k8s:
 #     state: present
+#     src: /home/ubuntu/repositories/bsb-k8s/ns.yaml
+
+# - name: Create Dockerhub Secret
+#   kubernetes.core.k8s:
+#     state: present
+#     src: /home/ubuntu/repositories/bsb-k8s/app/dockerhub-secret.yaml
+
+# - name: Create Environment Variables ConfigMap
+#   kubernetes.core.k8s:
+#     state: present
+#     src: /home/ubuntu/repositories/bsb-k8s/app/app-env.yaml
+
+# - name: Create Deployment
+#   kubernetes.core.k8s:
+#     state: present
+#     src: /home/ubuntu/repositories/bsb-k8s/app/app-deployment.yaml
+
+# - name: Create Service
+#   kubernetes.core.k8s:
+#     state: present
+#     src: /home/ubuntu/repositories/bsb-k8s/app/app-svc.yaml
+
+# - name: Install Ingress Controller manifest to the cluster.
+#   shell: kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller/crds?ref=master"
+
+# - name: Create Ingress
+#   kubernetes.core.k8s:
+#     state: present
+#     src: /home/ubuntu/repositories/bsb-k8s/app/app-ingress.yaml
+
+# ######### Build n Push
+# # - name: Build Frontend
+# #   community.docker.docker_image:
+# #     build:
+# #       path: /home/ubuntu/repositories/bsb-react
+# #       args:
+# #         API_PROXY: https://api-bsb.mrnimic.com
+# #         SBS_ORIGIN_URL: https://bsb.mrnimic.com
+# #     name: '{{ frontend_ecr_url }}'
+# #     tag: v1.0.4
+# #     push: true
+# #     source: build
+
+
+
+# # - name: Create a example.net CNAME record to example.com
+# #   community.general.cloudflare_dns:
+# #     zone: example.net
+# #     type: CNAME
+# #     value: example.com
+# #     account_email: test@example.com
+# #     account_api_key: dummyapitoken
+# #     state: present
