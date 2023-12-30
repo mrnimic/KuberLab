@@ -1,2 +1,2 @@
-- name: restart_shell
-  shell: "exec bash"
+# - name: restart_shell
+#   shell: "exec bash"
